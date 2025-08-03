@@ -33,10 +33,16 @@ class FormController extends Controller
                                                                 if instructed, follow guidance on tone, format, etc... If the text is short enough, simply recap/rewrite it in the provided tone or format.
                                                                 Do not allude to it being a quiz, I want detailed summarization - clearly highlighting points of importance.'),
 
+//                new ArraySchema(
+//                    name: 'FillInTheBlankQuestions',
+//                    description: 'a list of fill in the blank questions',
+//                    items: new StringSchema('fill in the blank question', 'A single fill in the blank question')
+//                ),
+
                 new ArraySchema(
                     name: 'FillInTheBlankQuestions',
-                    description: 'a list of fill in the blank questions',
-                    items: new StringSchema('fill in the blank question', 'A single fill in the blank question')
+                    description: 'a list of fill in the blank questions where the array includes the question and the right answer',
+                    items: new ArraySchema('FillInTheBlankQuestion', 'The array of first the question and then the right answer', items: new StringSchema('Question or Choice', 'Either the question or the right answer'))
                 ),
 
                 new ArraySchema(
@@ -83,7 +89,10 @@ class FormController extends Controller
 
         foreach ($structuredResponse['FillInTheBlankQuestions'] as $question)
         {
-            $formService->addTextQuestion($formId, $question, true);
+            $questionText = $question[0];
+            $answer = $question[1];
+
+            $formService->addTextQuestion($formId, $questionText,$answer,true);
         }
 
         foreach ($structuredResponse['MultipleChoiceQuestions'] as $question)

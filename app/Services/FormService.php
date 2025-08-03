@@ -82,14 +82,27 @@ class FormService
         return $createdFormId->formId;
     }
 
-    public function addTextQuestion($formId, $title, $required = false)
+    public function addTextQuestion($formId, $title, $correctAnswer, $required = false)
     {
         $textQuestion = new TextQuestion();
         $textQuestion->setParagraph(false);
 
+        $correctAnswer = new \Google\Service\Forms\CorrectAnswer([
+            'value' => $correctAnswer
+        ]);
+
+        $correctAnswers = new \Google\Service\Forms\CorrectAnswers([
+            'answers' => [$correctAnswer]
+        ]);
+
+        $grading = new \Google\Service\Forms\Grading([
+            'pointValue' => 1,
+            'correctAnswers' => $correctAnswers
+        ]);
         $question = new Question([
             'textQuestion' => $textQuestion,
-            'required' => $required
+            'required' => $required,
+            'grading' => $grading,
         ]);
 
         $questionItem = new QuestionItem([
@@ -119,20 +132,6 @@ class FormService
 
     public function addMultipleChoiceQuestion($formId, $title, $options, $rightChoice ,$required = false)
     {
-        // Normalize all options and correct answer by trimming whitespace
-        $normalizedOptions = array_map('trim', $options);
-        $normalizedRightChoice = trim($rightChoice);
-
-        // Ensure the correct answer exists in the options array
-        if (!in_array($normalizedRightChoice, $normalizedOptions, true)) {
-            Log::error("Correct answer validation failed", [
-                'rightChoice' => $rightChoice,
-                'normalizedRightChoice' => $normalizedRightChoice,
-                'options' => $options,
-                'normalizedOptions' => $normalizedOptions
-            ]);
-            throw new \Exception("Correct answer '$rightChoice' must be one of the provided options: " . implode(', ', $options));
-        }
 
         $choiceQuestion = new \Google\Service\Forms\ChoiceQuestion([
             'type' => 'RADIO',
@@ -142,7 +141,7 @@ class FormService
         ]);
 
         $correctAnswer = new \Google\Service\Forms\CorrectAnswer([
-            'value' => $normalizedRightChoice
+            'value' => $rightChoice
         ]);
 
         $correctAnswers = new \Google\Service\Forms\CorrectAnswers([
