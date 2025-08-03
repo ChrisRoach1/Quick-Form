@@ -40,7 +40,7 @@ class FormService
 
     }
 
-    public function CreateForm($formTitle, $description): string
+    public function CreateForm($formTitle): string
     {
 
         $formInfo = new Forms\Info();
@@ -60,13 +60,25 @@ class FormService
             'updateMask' => 'quizSettings.isQuiz'
         ]);
 
-        $updateFormInfoRequest = new UpdateFormInfoRequest([
-            'info' => new Forms\Info(['description' => $description]),
-            'updateMask' => 'description'
-        ]);
 
         $settingsRequest = new FormsRequest([
             'updateSettings' => $updateSettingsRequest
+        ]);
+
+        $batchRequest = new BatchUpdateFormRequest([
+            'requests' => [$settingsRequest]
+        ]);
+
+        $this->formsService->forms->batchUpdate($createdFormId->formId, $batchRequest);
+
+        return $createdFormId->formId;
+    }
+
+    public function SetFormDescription($formId, $description)
+    {
+        $updateFormInfoRequest = new UpdateFormInfoRequest([
+            'info' => new Forms\Info(['description' => $description]),
+            'updateMask' => 'description'
         ]);
 
         $infoRequest = new FormsRequest([
@@ -74,12 +86,10 @@ class FormService
         ]);
 
         $batchRequest = new BatchUpdateFormRequest([
-            'requests' => [$settingsRequest, $infoRequest]
+            'requests' => [$infoRequest]
         ]);
 
-        $this->formsService->forms->batchUpdate($createdFormId->formId, $batchRequest);
-
-        return $createdFormId->formId;
+        $this->formsService->forms->batchUpdate($formId, $batchRequest);
     }
 
     public function addTextQuestion($formId, $title, $correctAnswer, $required = false)

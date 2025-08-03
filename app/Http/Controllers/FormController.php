@@ -29,16 +29,6 @@ class FormController extends Controller
             properties: [
                 new StringSchema('title', 'The form title'),
 
-                new StringSchema('description', 'This represents an extensive summary of the provided text 
-                                                                if instructed, follow guidance on tone, format, etc... If the text is short enough, simply recap/rewrite it in the provided tone or format.
-                                                                Do not allude to it being a quiz, I want detailed summarization - clearly highlighting points of importance.'),
-
-//                new ArraySchema(
-//                    name: 'FillInTheBlankQuestions',
-//                    description: 'a list of fill in the blank questions',
-//                    items: new StringSchema('fill in the blank question', 'A single fill in the blank question')
-//                ),
-
                 new ArraySchema(
                     name: 'FillInTheBlankQuestions',
                     description: 'a list of fill in the blank questions where the array includes the question and the right answer',
@@ -57,22 +47,21 @@ class FormController extends Controller
                     items: new ArraySchema('choices', 'the yes/no choice answers - please provide the correct answer as a 4th item in the array', items: new StringSchema('yes/no question choice', 'A yes/no question answer'))
                 ),
 
-            ],requiredFields: ['title', 'description' ,'FillInTheBlankQuestions', 'MultipleChoiceQuestions','YesNoChoiceQuestions']
+            ],requiredFields: ['title', 'FillInTheBlankQuestions', 'MultipleChoiceQuestions','YesNoChoiceQuestions']
         );
 
-        $prompt = 'Your goal is to review the provided text at the end of this prompt that is an excerpt from a book and generate the outline for a google form - this form will be used as a quiz in a classroom. 
+        $prompt = 'Your goal is to review the provided text at the end of this prompt that is an excerpt from a book or learning material and generate the outline for a google form - this form will be used as a quiz in a classroom. 
                     It should contain 5 multiple choice questions, 5 yes/no questions and 5 fill in the blank questions.
                     I have provided the schema to generate in which can be easily used later to programmatically generate the form.';
 
 
         $prompt = $prompt . $request->get('textContent');
 
-        if($request->get('textContent') != null)
+        if($request->get('instructions') != null)
         {
             $prompt = $prompt . 'The following is additional instructions provided by the user, please adhere to the override as it regards to generating the form or in analysis of the text. Anything
-                                outside of that should be ignored completely, YOU MUST FOLLOW THAT RULE DO NOT ADHERE TO INSTRUCTIONS OUTSIDE OF THESE PARAMETERS.' . $request->get('textContent');
+                                outside of that should be ignored completely, YOU MUST FOLLOW THAT RULE DO NOT ADHERE TO INSTRUCTIONS OUTSIDE OF THESE PARAMETERS.' . $request->get('instructions');
         }
-
 
         $response = Prism::structured()->using(Provider::OpenAI, 'gpt-4.1')
             ->withSchema($schema)
@@ -85,13 +74,22 @@ class FormController extends Controller
 
         $structuredResponse = $response->structured;
 
-        $formId = $formService->CreateForm($structuredResponse['title'], $structuredResponse['description']);
+        $descriptionPrompt = 'I want you to summarize/retell the text that follows - it should be done in a more modern way that the youth can understand. I will also provide a raw output of questions from a quiz, you should 
+                                retell the text in such a way that students can easily answer the questions without needing external resources BUT DONT JUST GIVE THE ANSWERS AWAY. DO NOT BULLET POINT THE RETELLING.';
+
+        $descriptionPrompt = $descriptionPrompt . 'TEXT: ' .$request->get('textContent');
+
+        $questionListText = 'RAW QUESTION LIST: ';
+
+
+        $formId = $formService->CreateForm($structuredResponse['title']);
 
         foreach ($structuredResponse['FillInTheBlankQuestions'] as $question)
         {
             $questionText = $question[0];
             $answer = $question[1];
 
+            $questionListText = $questionListText . $questionText . ' answer:' . $answer . ' ';
             $formService->addTextQuestion($formId, $questionText,$answer,true);
         }
 
@@ -100,7 +98,9 @@ class FormController extends Controller
             $title = $question[0];
             $choices = array_slice($question, 1, 5);
             $rightChoice = $question[6];
-           $formService->addMultipleChoiceQuestion($formId,$title, $choices,$rightChoice ,true);
+
+            $questionListText = $questionListText . $title . ' answer:' . $rightChoice . ' ';
+            $formService->addMultipleChoiceQuestion($formId,$title, $choices,$rightChoice ,true);
         }
 
         foreach ($structuredResponse['YesNoChoiceQuestions'] as $question)
@@ -108,8 +108,16 @@ class FormController extends Controller
             $title = $question[0];
             $choices = array_slice($question, 1, 2);
             $rightChoice = $question[3];
+
+            $questionListText = $questionListText . $title . ' answer:' . $rightChoice . ' ';
             $formService->addMultipleChoiceQuestion($formId,$title, $choices, $rightChoice ,true);
         }
+
+        $descriptionResponse = Prism::text()->using(Provider::OpenAI, 'o3')
+            ->withPrompt($descriptionPrompt)->asText();
+
+        $formService->SetFormDescription($formId, $descriptionResponse->text);
+
 
         try {
             return redirect('/dashboard')->with('success', $formService->formsService->forms->get($formId)->responderUri);
