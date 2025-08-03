@@ -16,6 +16,7 @@ use Google\Service\Forms\QuestionItem;
 use Google\Service\Forms\Question;
 use Google\Service\Forms\TextQuestion;
 use Google\Service\Forms\UpdateSettingsRequest;
+use Google\Service\Forms\UpdateFormInfoRequest;
 class FormService
 {
     public $client;
@@ -44,7 +45,6 @@ class FormService
 
         $formInfo = new Forms\Info();
         $formInfo->setTitle($formTitle);
-        //$formInfo->setDescription($description);
         $form = new Form();
         $form->setInfo($formInfo);
         $createdFormId = $this->formsService->forms->create($form);
@@ -60,12 +60,21 @@ class FormService
             'updateMask' => 'quizSettings.isQuiz'
         ]);
 
-        $formsRequest = new FormsRequest([
+        $updateFormInfoRequest = new UpdateFormInfoRequest([
+            'info' => new Forms\Info(['description' => $description]),
+            'updateMask' => 'description'
+        ]);
+
+        $settingsRequest = new FormsRequest([
             'updateSettings' => $updateSettingsRequest
         ]);
 
+        $infoRequest = new FormsRequest([
+            'updateFormInfo' => $updateFormInfoRequest
+        ]);
+
         $batchRequest = new BatchUpdateFormRequest([
-            'requests' => [$formsRequest]
+            'requests' => [$settingsRequest, $infoRequest]
         ]);
 
         $this->formsService->forms->batchUpdate($createdFormId->formId, $batchRequest);
