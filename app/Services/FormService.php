@@ -6,6 +6,7 @@ use Google\Client;
 use Google\Service\Forms;
 use Google\Service\Forms\BatchUpdateFormRequest;
 use Google\Service\Forms\Form;
+use Illuminate\Support\Facades\Log;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Google\Service\Forms\Request as FormsRequest;
@@ -14,6 +15,7 @@ use Google\Service\Forms\Item;
 use Google\Service\Forms\QuestionItem;
 use Google\Service\Forms\Question;
 use Google\Service\Forms\TextQuestion;
+use Google\Service\Forms\UpdateSettingsRequest;
 class FormService
 {
     public $client;
@@ -37,14 +39,36 @@ class FormService
 
     }
 
-    public function CreateForm($formTitle): string
+    public function CreateForm($formTitle, $description): string
     {
 
         $formInfo = new Forms\Info();
         $formInfo->setTitle($formTitle);
+        //$formInfo->setDescription($description);
         $form = new Form();
         $form->setInfo($formInfo);
         $createdFormId = $this->formsService->forms->create($form);
+
+        // Enable quiz settings
+        $formSettings = new Forms\FormSettings();
+        $quizSettings = new Forms\QuizSettings();
+        $quizSettings->setIsQuiz(true);
+        $formSettings->setQuizSettings($quizSettings);
+
+        $updateSettingsRequest = new Forms\UpdateSettingsRequest([
+            'settings' => $formSettings,
+            'updateMask' => 'quizSettings.isQuiz'
+        ]);
+
+        $formsRequest = new FormsRequest([
+            'updateSettings' => $updateSettingsRequest
+        ]);
+
+        $batchRequest = new BatchUpdateFormRequest([
+            'requests' => [$formsRequest]
+        ]);
+
+        $this->formsService->forms->batchUpdate($createdFormId->formId, $batchRequest);
 
         return $createdFormId->formId;
     }
@@ -52,6 +76,7 @@ class FormService
     public function addTextQuestion($formId, $title, $required = false)
     {
         $textQuestion = new TextQuestion();
+        $textQuestion->setParagraph(false);
 
         $question = new Question([
             'textQuestion' => $textQuestion,
@@ -83,18 +108,49 @@ class FormService
         return $this->formsService->forms->batchUpdate($formId, $request);
     }
 
-    public function addMultipleChoiceQuestion($formId, $title, $options, $required = false)
+    public function addMultipleChoiceQuestion($formId, $title, $options, $rightChoice ,$required = false)
     {
+        // Normalize all options and correct answer by trimming whitespace
+        $normalizedOptions = array_map('trim', $options);
+        $normalizedRightChoice = trim($rightChoice);
+
+        // Ensure the correct answer exists in the options array
+        if (!in_array($normalizedRightChoice, $normalizedOptions, true)) {
+            Log::error("Correct answer validation failed", [
+                'rightChoice' => $rightChoice,
+                'normalizedRightChoice' => $normalizedRightChoice,
+                'options' => $options,
+                'normalizedOptions' => $normalizedOptions
+            ]);
+            throw new \Exception("Correct answer '$rightChoice' must be one of the provided options: " . implode(', ', $options));
+        }
+
         $choiceQuestion = new \Google\Service\Forms\ChoiceQuestion([
             'type' => 'RADIO',
             'options' => array_map(function($option) {
-                return ['value' => $option];
+                return ['value' => trim($option)];
             }, $options)
         ]);
 
+        $correctAnswer = new \Google\Service\Forms\CorrectAnswer([
+            'value' => $normalizedRightChoice
+        ]);
+
+        $correctAnswers = new \Google\Service\Forms\CorrectAnswers([
+            'answers' => [$correctAnswer]
+        ]);
+
+        $grading = new \Google\Service\Forms\Grading(
+            [
+                'pointValue' => 1,
+                'correctAnswers' => $correctAnswers
+            ]
+        );
+
         $question = new Question([
             'choiceQuestion' => $choiceQuestion,
-            'required' => $required
+            'required' => $required,
+            'grading' => $grading,
         ]);
 
         $questionItem = new QuestionItem([
