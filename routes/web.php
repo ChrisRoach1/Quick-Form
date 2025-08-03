@@ -24,19 +24,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // OAuth authorization route
 Route::get('/google/auth', function () {
     $client = new Client();
-    $client->setAuthConfig(base_path('client_secret_537945553436-9q1n3lp3q0pfi14j2j24d968i64u1m5o.apps.googleusercontent.com.json'));
     $client->addScope('https://www.googleapis.com/auth/forms.body');
     $client->addScope('https://www.googleapis.com/auth/drive');
+    $client->setClientId(env('GOOGLE_CLIENT_ID', ''));
+    $client->setClientSecret(env('GOOGLE_CLIENT_SECRET', ''));
+    $client->setApplicationName(env('GOOGLE_PROJECT_ID', ''));
+    $client->setRedirectUri(env('GOOGLE_REDIRECT_URI', ''));;
+    $client->setAccessType('offline');
+    $client->setPrompt('select_account consent');
+    $client->setIncludeGrantedScopes(true);
 
     $authUrl = $client->createAuthUrl();
-    return redirect($authUrl)->header('Access-Control-Allow-Origin', '*');
+    return redirect($authUrl);
 })->middleware(['auth', 'verified'])->name('google.auth');
 
 
 // OAuth callback route
 Route::get('/google/callback', function () {
     $client = new Client();
-    $client->setAuthConfig(base_path('client_secret_537945553436-9q1n3lp3q0pfi14j2j24d968i64u1m5o.apps.googleusercontent.com.json'));
+    $client->addScope('https://www.googleapis.com/auth/forms.body');
+    $client->addScope('https://www.googleapis.com/auth/drive');
+    $client->setClientId(env('GOOGLE_CLIENT_ID', ''));
+    $client->setClientSecret(env('GOOGLE_CLIENT_SECRET', ''));
+    $client->setApplicationName(env('GOOGLE_PROJECT_ID', ''));
+    $client->setRedirectUri(env('GOOGLE_REDIRECT_URI', ''));;
+
     if (request()->has('code')) {
         $code = request()->get('code');
         $accessToken = $client->fetchAccessTokenWithAuthCode($code);
