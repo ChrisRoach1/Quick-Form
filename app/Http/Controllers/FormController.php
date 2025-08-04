@@ -75,21 +75,57 @@ class FormController extends Controller
         $structuredResponse = $response->structured;
 
         $descriptionPrompt = 'I want you to summarize/retell the text that follows - it should be done in a more modern way that the youth can understand. I will also provide a raw output of questions from a quiz, you should 
-                                retell the text in such a way that students can easily answer the questions without needing external resources BUT DONT JUST GIVE THE ANSWERS AWAY. DO NOT BULLET POINT THE RETELLING.';
+                                retell the text in such a way that students can easily answer the questions without needing external resources. DO NOT BULLET POINT THE RETELLING. YOU NEED TO MAKE SURE THE SUMMARY INCLUDES RELEVANT
+                                POINTS AS IT RELATES TO THE QUESTIONS BEING ASKED. THE STUDENTS MUST BE ABLE TO REED THE RETELLING AND FIND THE ANSWERS. THIS IS THE MOST IMPORTANT PART OF THE RETELLING DO NOT SCREW THIS UP';
 
         $descriptionPrompt = $descriptionPrompt . 'TEXT: ' .$request->get('textContent');
 
         $questionListText = 'RAW QUESTION LIST: ';
+
+        $verificationSchema = new ObjectSchema(
+            name: 'google_form_outline_verification',
+            description: 'A structured outline to programmatically verify accuracy on the google forms outline.',
+            properties: [
+                new ArraySchema(
+                    name: 'problemQuestions',
+                    description: 'A list of incorrect questions with the right answer listed',
+                    items: new ArraySchema('problemQuestions', 'The list of problem questions where the first item is the question text and the second is the right answer', items: new StringSchema('Question or Choice', 'Either the question or the right answer'))
+                ),
+            ],requiredFields: ['problemQuestions']
+        );
+
+        $verificationPrompt = 'I want you to verify the following questions are correct and if they are not correct please provide the correct answer. 
+                                The questions should be in the same order as the questions in the google form.
+                                The questions are based around the text that follows: ' . $request->get('textContent') .
+                                'The following is the raw structured output for the form outline: ' . json_encode($structuredResponse);
+
+        $verificationResponse = Prism::structured()->using(Provider::OpenAI, 'gpt-4.1')
+            ->withSchema($verificationSchema)
+            ->withProviderOptions([
+                'schema' => [
+                    'strict' => true
+                ]
+            ])
+            ->withPrompt($verificationPrompt)->asStructured();
+
+        $structuredVerificationResponse = $verificationResponse->structured;
 
 
         $formId = $formService->CreateForm($structuredResponse['title']);
 
         foreach ($structuredResponse['FillInTheBlankQuestions'] as $question)
         {
+
             $questionText = $question[0];
             $answer = $question[1];
 
-            $questionListText = $questionListText . $questionText . ' answer:' . $answer . ' ';
+            foreach ($structuredVerificationResponse['problemQuestions'] as $problemQuestion){
+                if($problemQuestion[0] === $questionText){
+                    $answer = $problemQuestion[1];
+                }
+            }
+
+            $questionListText = $questionListText . '; ' .$questionText;
             $formService->addTextQuestion($formId, $questionText,$answer,true);
         }
 
@@ -99,7 +135,13 @@ class FormController extends Controller
             $choices = array_slice($question, 1, 5);
             $rightChoice = $question[6];
 
-            $questionListText = $questionListText . $title . ' answer:' . $rightChoice . ' ';
+            foreach ($structuredVerificationResponse['problemQuestions'] as $problemQuestion){
+                if($problemQuestion[0] === $title){
+                    $rightChoice = $problemQuestion[1];
+                }
+            }
+
+            $questionListText = $questionListText . '; ' .$title;
             $formService->addMultipleChoiceQuestion($formId,$title, $choices,$rightChoice ,true);
         }
 
@@ -109,10 +151,17 @@ class FormController extends Controller
             $choices = array_slice($question, 1, 2);
             $rightChoice = $question[3];
 
-            $questionListText = $questionListText . $title . ' answer:' . $rightChoice . ' ';
+            foreach ($structuredVerificationResponse['problemQuestions'] as $problemQuestion){
+                if($problemQuestion[0] === $title){
+                    $rightChoice = $problemQuestion[1];
+                }
+            }
+
+            $questionListText = $questionListText . '; ' .$title;
             $formService->addMultipleChoiceQuestion($formId,$title, $choices, $rightChoice ,true);
         }
 
+        $descriptionPrompt = $descriptionPrompt . $questionListText;
         $descriptionResponse = Prism::text()->using(Provider::OpenAI, 'o3')
             ->withPrompt($descriptionPrompt)->asText();
 
