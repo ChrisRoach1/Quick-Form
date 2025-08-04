@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { FileText, Shield, CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
+import { FileText, Shield, CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
 import { useState } from 'react';
 
 interface DashboardProps {
