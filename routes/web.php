@@ -21,6 +21,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('dashboard');
 
+    Route::get('all-forms', function () {
+
+
+        return Inertia::render('all-forms',[
+            'generatedForms' => auth()->user()->userForm()->orderByDesc('created_at')->get()
+        ]);
+    })->name('all-forms');
+
     Route::post('outline', [FormController::class, 'generateOutline'])->name('generateOutline');
 
 });

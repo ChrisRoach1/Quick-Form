@@ -6,7 +6,6 @@ use Google\Client;
 use Google\Service\Forms;
 use Google\Service\Forms\BatchUpdateFormRequest;
 use Google\Service\Forms\Form;
-use Illuminate\Support\Facades\Log;
 use Prism\Prism\Enums\Provider;
 use Prism\Prism\Prism;
 use Prism\Prism\Schema\ArraySchema;
@@ -14,14 +13,12 @@ use Prism\Prism\Schema\ObjectSchema;
 use Prism\Prism\Schema\StringSchema;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use App\Services\GoogleOAuthService;
 use Google\Service\Forms\Request as FormsRequest;
 use Google\Service\Forms\CreateItemRequest;
 use Google\Service\Forms\Item;
 use Google\Service\Forms\QuestionItem;
 use Google\Service\Forms\Question;
 use Google\Service\Forms\TextQuestion;
-use Google\Service\Forms\UpdateSettingsRequest;
 use Google\Service\Forms\UpdateFormInfoRequest;
 class FormService
 {
@@ -40,12 +37,17 @@ class FormService
         $this->client = new Client();
         
         $accessToken = $this->oauthService->getValidToken();
-        if($accessToken == null){
-            throw new \Exception('No valid access token found. Please re-authenticate.');
+
+        if($accessToken != null){
+            $this->client->setAccessToken($accessToken);
         }
 
-        $this->client->setAccessToken($accessToken);
         $this->formsService = new Forms($this->client);
+    }
+
+    public function SetOverrideAccessToken($accessToken)
+    {
+        $this->client->setAccessToken($accessToken);
     }
 
     public function CreateForm($formTitle): string

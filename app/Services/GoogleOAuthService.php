@@ -106,4 +106,11 @@ class GoogleOAuthService
             return null;
         }
     }
+
+    public function GetValidAccessTokenString()
+    {
+        $tokenData = $this->getValidToken();
+
+        return $tokenData['access_token'];
+    }
 }

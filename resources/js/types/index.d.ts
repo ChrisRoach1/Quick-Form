@@ -41,3 +41,9 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface UserForm {
+    status: 'pending' | 'processing' | 'completed' | 'failed' | string;
+    form_url: string;
+    created_at: string | Date;
+}

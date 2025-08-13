@@ -12,6 +12,11 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
+    {
+        title: 'All Forms',
+        href: '/all-forms',
+        icon: LayoutGrid,
+    },
 ];
 
 export function AppSidebar() {
