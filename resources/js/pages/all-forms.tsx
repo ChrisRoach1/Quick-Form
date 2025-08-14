@@ -12,8 +12,8 @@ interface DashboardProps {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'All Forms',
+        href: '/all-forms',
     },
 ];
 

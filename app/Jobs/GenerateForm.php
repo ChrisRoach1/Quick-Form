@@ -117,7 +117,7 @@ class GenerateForm implements ShouldQueue
             }
 
             Log::info("Generating form description...");
-            $description = $formService->GenerateDescription($this->userForm['text_content'], $questionListText);
+            $description = $formService->GenerateDescription($this->userForm['text_content'], $questionListText, $this->userForm['prompt_rewrite_instructions']);;
             $formService->SetFormDescription($formId, $description);
 
             Log::info("Getting form URL...");

@@ -206,7 +206,7 @@ class FormService
         return $this->formsService->forms->batchUpdate($formId, $request);
     }
 
-    public function GenerateDescription(string $textToSummarize, string $rawQuestionList)
+    public function GenerateDescription(string $textToSummarize, string $rawQuestionList, string $toneOverride)
     {
 
         $descriptionPrompt = 'I want you to summarize/retell the text that follows - it should be done in a more modern way that the youth can understand. I will also provide a raw output of questions from a quiz, you should 
@@ -214,6 +214,12 @@ class FormService
                                 POINTS AS IT RELATES TO THE QUESTIONS BEING ASKED. THE STUDENTS MUST BE ABLE TO REED THE RETELLING AND FIND THE ANSWERS. THIS IS THE MOST IMPORTANT PART OF THE RETELLING DO NOT SCREW THIS UP';
 
         $descriptionPrompt = $descriptionPrompt . 'TEXT: ' . $textToSummarize . $rawQuestionList;
+
+        if($toneOverride != null)
+        {
+           $descriptionPrompt = $descriptionPrompt . 'the following will represent a tone override - the retelling should follow as instructed. This could be in the tone of a given author, an example text, etc.. 
+                                                    follow the override only in regards to the retelling - nothing else.  TONE OVERRIDE: ' . $toneOverride;
+        }
 
         $descriptionResponse = Prism::text()->using(Provider::OpenAI, 'o3')
             ->withPrompt($descriptionPrompt)->asText();
@@ -236,9 +242,10 @@ class FormService
         );
 
         $verificationPrompt = 'I want you to verify the following questions are correct and if they are not correct please provide the correct answer. 
+                                THE CORRECT ANSWER MUST BE ONE OF THE EXISTING OPTIONS. 
                                 The questions should be in the same order as the questions in the google form.
                                 The questions are based around the text that follows: ' . $textContent .
-            'The following is the raw structured output for the form outline: ' . json_encode($structuredQuestionResponse);
+                                'The following is the raw structured output for the form outline: ' . json_encode($structuredQuestionResponse);
 
         $verificationResponse = Prism::structured()->using(Provider::OpenAI, 'gpt-4.1')
             ->withSchema($verificationSchema)
@@ -256,7 +263,7 @@ class FormService
     {
         $schema = new ObjectSchema(
             name: 'google_form_outline',
-            description: 'A structured outline to progamatically generate a google form.',
+            description: 'A structured outline to programmatically generate a google form.',
             properties: [
                 new StringSchema('title', 'The form title'),
 

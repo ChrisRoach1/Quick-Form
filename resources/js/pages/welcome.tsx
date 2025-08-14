@@ -20,10 +20,7 @@ export default function Welcome() {
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex items-center justify-between h-16">
                             <div className="flex items-center space-x-2">
-                                <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-                                    <FileText className="h-5 w-5 text-primary-foreground" />
-                                </div>
-                                <span className="text-xl font-semibold text-foreground">FormGen</span>
+                            <span className="mb-0.5 truncate leading-tight font-semibold text-2xl">Quick Forms</span>
                             </div>
 
                             <nav className="flex items-center space-x-4">
@@ -251,53 +248,7 @@ export default function Welcome() {
                     </div>
                 </section>
 
-                {/* CTA Section */}
-                <section className="bg-primary py-20">
-                    <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                        <h2 className="text-3xl lg:text-4xl font-bold text-primary-foreground mb-6">
-                            Ready to Transform Your Test Creation?
-                        </h2>
-                        <p className="text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto">
-                            Join hundreds of educators who have already streamlined their assessment process.
-                        </p>
 
-                        {auth.user ? (
-                            <Button size="lg" variant="secondary" className="text-lg px-8 py-6" asChild>
-                                <Link href={route('dashboard')}>
-                                    <FileText className="mr-2 h-5 w-5" />
-                                    Go to Dashboard
-                                </Link>
-                            </Button>
-                        ) : (
-                            <Button size="lg" variant="secondary" className="text-lg px-8 py-6" asChild>
-                                <Link href={route('register')}>
-                                    <FileText className="mr-2 h-5 w-5" />
-                                    Start Creating Tests Today
-                                </Link>
-                            </Button>
-                        )}
-                    </div>
-                </section>
-
-                {/* Footer */}
-                <footer className="bg-secondary py-12">
-                    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center">
-                            <div className="flex items-center justify-center space-x-2 mb-4">
-                                <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-                                    <FileText className="h-5 w-5 text-primary-foreground" />
-                                </div>
-                                <span className="text-xl font-semibold text-secondary-foreground">FormGen</span>
-                            </div>
-                            <p className="text-muted-foreground mb-6">
-                                Streamlining test creation for educators worldwide.
-                            </p>
-                            <p className="text-sm text-muted-foreground/70">
-                                © 2025 FormGen. Built for teachers, by teachers.
-                            </p>
-                        </div>
-                    </div>
-                </footer>
             </div>
         </>
     );
