@@ -1,6 +1,7 @@
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { TokenDisplay } from '@/components/token-display';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { LayoutGrid } from 'lucide-react';
@@ -39,6 +40,10 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
+                <div className="py-2">
+                    <TokenDisplay className="w-full justify-center" />
+                </div>
+                <SidebarSeparator className="mx-0" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

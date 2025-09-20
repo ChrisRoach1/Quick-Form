@@ -31,7 +31,9 @@ class FormController extends Controller
             'access_token' => $googleOAuthService->GetValidAccessTokenString()
         ]);
 
+        auth()->user()->decrement('tokens', 1);
+
         GenerateForm::dispatch($pendingUserForm);
-        return redirect('/dashboard')->with('success', 'Your form is generating please check back soon for a link to your form!');
+        return redirect('/dashboard')->with('success', 'Your form is generating please check the forms page to see the status!');
     }
 }

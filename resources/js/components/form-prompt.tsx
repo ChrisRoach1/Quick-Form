@@ -31,6 +31,8 @@ export default function FormPrompt() {
         router.post(route('generateOutline'), values);
 
         form.reset();
+
+        router.flushAll();
     }
 
     return (
@@ -83,7 +85,7 @@ export default function FormPrompt() {
                     </FormItem>
                 )}
             />
-            <Button type="submit" className="h-11 w-full text-base font-medium" disabled={!form.formState.isValid}>Generate Google Form</Button>
+            <Button type="submit" className="h-11 w-full text-base font-medium" disabled={!form.formState.isValid}>Generate Google Form (1 token)</Button>
         </form>
     </Form>
     );

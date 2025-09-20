@@ -206,7 +206,7 @@ class FormService
         return $this->formsService->forms->batchUpdate($formId, $request);
     }
 
-    public function GenerateDescription(string $textToSummarize, string $rawQuestionList, string $toneOverride)
+    public function GenerateDescription(string $textToSummarize, string $rawQuestionList, string | null $toneOverride)
     {
 
         $descriptionPrompt = 'I want you to summarize/retell the text that follows - it should be done in a more modern way that the youth can understand. I will also provide a raw output of questions from a quiz, you should 

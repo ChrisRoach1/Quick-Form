@@ -83,7 +83,7 @@ export default function Dashboard({ hasGoogleAuth, flash }: DashboardProps) {
                                     <Shield className="h-5 w-5" />
                                     Authentication Required
                                 </CardTitle>
-                                <CardDescription>You need to authenticate with Google to create forms and access Google Forms API</CardDescription>
+                                <CardDescription>You need to authenticate with Google to create forms!</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <Button onClick={authenticateWithGoogle} className="h-11 w-full text-base font-medium">

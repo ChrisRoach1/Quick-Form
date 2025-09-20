@@ -20,7 +20,6 @@ class GoogleOAuthService
         $this->client->setPrompt('select_account consent');
         $this->client->setIncludeGrantedScopes(true);
         $this->client->addScope('https://www.googleapis.com/auth/forms.body');
-        $this->client->addScope('https://www.googleapis.com/auth/drive');
     }
 
     public function getAuthUrl(): string
@@ -31,7 +30,7 @@ class GoogleOAuthService
     public function handleCallback(string $code): array
     {
         $accessToken = $this->client->fetchAccessTokenWithAuthCode($code);
-        
+        auth()->user()->update(['google_session' => $accessToken]);
         if (isset($accessToken['error'])) {
             throw new \Exception('OAuth error: ' . $accessToken['error_description'] ?? $accessToken['error']);
         }
@@ -84,9 +83,15 @@ class GoogleOAuthService
     public function getValidToken(): ?array
     {
         $tokenData = session()->get('google_access_token');
-        
         if (!$tokenData) {
-            return null;
+
+            if(auth()->user()){
+                $tokenData = json_decode(auth()->user()->google_session, true);
+            }
+
+            if(!$tokenData){
+                return null;
+            }
         }
 
         // If token is not expired, return it
@@ -98,6 +103,7 @@ class GoogleOAuthService
         try {
             $refreshedToken = $this->refreshToken($tokenData);
             session(['google_access_token' => $refreshedToken]);
+            auth()->user()->update(['google_session' => $refreshedToken]);
             return $refreshedToken;
         } catch (\Exception $e) {
             // Refresh failed, clear the token

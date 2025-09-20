@@ -49,9 +49,9 @@ class GenerateForm implements ShouldQueue
     {
         try{
             $this->userForm->update(['status' => 'processing']);
-            
+
             Log::info("Starting form generation for UserForm ID: {$this->userForm->id}");
-            
+
             $formService->SetOverrideAccessToken($this->userForm['access_token']);
 
             Log::info("Generating form outline...");
@@ -132,9 +132,9 @@ class GenerateForm implements ShouldQueue
 
         } catch (\Exception $ex) {
             Log::error("Form generation failed for UserForm ID: {$this->userForm->id} - Error: " . $ex->getMessage());
-            
+
             $this->userForm->update(['status' => 'failed']);
-            
+
             $this->fail($ex);
         }
     }
