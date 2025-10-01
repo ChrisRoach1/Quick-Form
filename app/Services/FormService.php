@@ -24,7 +24,6 @@ class FormService
 {
     public $client;
     public $formsService;
-    private $oauthService;
 
     /**
      * @throws ContainerExceptionInterface
@@ -33,19 +32,11 @@ class FormService
      */
     public function __construct()
     {
-        $this->oauthService = new GoogleOAuthService();
         $this->client = new Client();
-        
-        $accessToken = $this->oauthService->getValidToken();
-
-        if($accessToken != null){
-            $this->client->setAccessToken($accessToken);
-        }
-
         $this->formsService = new Forms($this->client);
     }
 
-    public function SetOverrideAccessToken($accessToken)
+    public function SetAccessToken($accessToken)
     {
         $this->client->setAccessToken($accessToken);
     }

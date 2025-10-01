@@ -8,6 +8,7 @@ use App\Services\FormService;
 use App\Services\GoogleOAuthService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Laravel\Socialite\Facades\Socialite;
 
 class FormController extends Controller
 {
@@ -20,7 +21,7 @@ class FormController extends Controller
         ]);
     }
 
-    public function generateOutline(Request $request, FormService $formService, GoogleOAuthService $googleOAuthService)
+    public function generateOutline(Request $request, FormService $formService)
     {
         $pendingUserForm = UserForm::create([
             'user_id' => auth()->user()->id,
@@ -28,7 +29,7 @@ class FormController extends Controller
             'prompt_instructions' => $request->get('instructions'),
             'prompt_rewrite_instructions' => $request->get('tone'),
             'status' => 'pending',
-            'access_token' => $googleOAuthService->GetValidAccessTokenString()
+            'access_token' => auth()->user()->google_session
         ]);
 
         auth()->user()->decrement('tokens', 1);

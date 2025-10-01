@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FormController;
 use App\Models\PaidStripeSession;
+use App\Models\User;
 use App\Services\GoogleOAuthService;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -16,12 +17,8 @@ Route::get('/', function () {
 //primary app stuff
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        $oauthService = new GoogleOAuthService();
-        $hasValidToken = $oauthService->getValidToken() !== null;
         
-        return Inertia::render('dashboard', [
-            'hasGoogleAuth' => $hasValidToken
-        ]);
+        return Inertia::render('dashboard');
     })->name('dashboard');
 
     Route::get('all-forms', [FormController::class, 'index'])->name('all-forms');
@@ -73,35 +70,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
+//socialite stuff
+Route::get('/auth/redirect', function () {
+    return Socialite::driver('google')
+        ->scopes(['https://www.googleapis.com/auth/forms.body'])
+        ->redirect();
+})->name('google-redirect');
 
-//google auth stuff
-Route::middleware(['auth', 'verified'])->group(function () {
-    // OAuth authorization route
-    Route::get('/google/auth', function () {
-        $oauthService = new GoogleOAuthService();
-        $authUrl = $oauthService->getAuthUrl();
-        return redirect($authUrl);
-    })->name('google.auth');
+Route::get('/google/callback', function () {
+    $googleUser = Socialite::driver('google')->user();
 
+    $user = User::updateOrCreate([
+        'google_id' => $googleUser->id,
+    ], [
+        'name' => $googleUser->name,
+        'email' => $googleUser->email,
+        'google_session' => $googleUser->token,
+    ]);
 
-// OAuth callback route
-    Route::get('/google/callback', function () {
-        if (!request()->has('code')) {
-            return redirect('/')->with('error', 'Authorization failed');
-        }
+    Auth::login($user);
 
-        try {
-            $oauthService = new GoogleOAuthService();
-            $accessToken = $oauthService->handleCallback(request()->get('code'));
-            session(['google_access_token' => $accessToken]);
-
-            return redirect('/dashboard')->with('success', 'You\'re good to go!');
-        } catch (\Exception $e) {
-            \Log::error('OAuth callback error: ' . $e->getMessage());
-            return redirect('/')->with('error', 'Authorization failed: ' . $e->getMessage());
-        }
-    })->name('google.callback');
+    return redirect('/dashboard');
 });
+
 
 
 

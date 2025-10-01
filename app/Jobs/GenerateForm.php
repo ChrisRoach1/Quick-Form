@@ -52,7 +52,7 @@ class GenerateForm implements ShouldQueue
 
             Log::info("Starting form generation for UserForm ID: {$this->userForm->id}");
 
-            $formService->SetOverrideAccessToken($this->userForm['access_token']);
+            $formService->SetAccessToken($this->userForm['access_token']);
 
             Log::info("Generating form outline...");
             $structuredResponse = $formService->GenerateFormOutline($this->userForm['text_content'], $this->userForm['prompt_instructions']);

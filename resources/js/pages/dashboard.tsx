@@ -1,14 +1,12 @@
 import FormPrompt from '@/components/form-prompt';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { AlertTriangle, CheckCircle, FileText, Info, Shield, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle, FileText, Info, XCircle } from 'lucide-react';
 
 interface DashboardProps {
-    hasGoogleAuth: boolean;
     flash?: {
         success?: string;
         error?: string;
@@ -24,7 +22,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard({ hasGoogleAuth, flash }: DashboardProps) {
+export default function Dashboard({ flash }: DashboardProps) {
 
 
     const getFlashAlert = () => {
@@ -64,10 +62,6 @@ export default function Dashboard({ hasGoogleAuth, flash }: DashboardProps) {
     };
 
 
-    const authenticateWithGoogle = () => {
-        window.location.href = route('google.auth');
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -75,25 +69,7 @@ export default function Dashboard({ hasGoogleAuth, flash }: DashboardProps) {
                 <div className="w-full space-y-6">
                     {/* Flash Messages */}
                     {getFlashAlert()}
-                    {!hasGoogleAuth ? (
-                        /* Authentication Required */
-                        <Card className="mx-auto w-full max-w-md">
-                            <CardHeader className="text-center">
-                                <CardTitle className="flex items-center justify-center gap-2">
-                                    <Shield className="h-5 w-5" />
-                                    Authentication Required
-                                </CardTitle>
-                                <CardDescription>You need to authenticate with Google to create forms!</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <Button onClick={authenticateWithGoogle} className="h-11 w-full text-base font-medium">
-                                    Authenticate with Google
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        /* Main Content */
-                        <Card className="w-full">
+                    <Card className="w-full">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <FileText className="h-5 w-5" />
@@ -107,7 +83,6 @@ export default function Dashboard({ hasGoogleAuth, flash }: DashboardProps) {
                                 <FormPrompt />
                             </CardContent>
                         </Card>
-                    )}
                 </div>
             </div>
         </AppLayout>
