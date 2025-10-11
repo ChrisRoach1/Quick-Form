@@ -2,66 +2,34 @@
 
 declare(strict_types=1);
 
-namespace App\Jobs;
+namespace App\Actions;
 
-use App\Models\UserForm;
+use App\Models\RapidGeneratedForm;
 use App\Services\FormService;
 use Exception;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-final class GenerateForm implements ShouldQueue
+final readonly class GenerateAPIFormAction
 {
-    use Queueable;
-
     /**
-     * The number of seconds the job can run before timing out.
-     *
-     * @var int
+     * Execute the action.
      */
-    public $timeout = 360;
-
-    /**
-     * The number of times the job may be attempted.
-     *
-     * @var int
-     */
-    public $tries = 3;
-
-    /**
-     * Create a new job instance.
-     */
-    public function __construct(public UserForm $userForm)
-    {
-        //
-    }
-
-    /**
-     * Calculate the number of seconds to wait before retrying the job.
-     */
-    public function backoff(): array
-    {
-        return [30, 60, 120]; // Wait 30s, then 60s, then 120s between retries
-    }
-
-    /**
-     * Execute the job.
-     */
-    public function handle(FormService $formService): void
+    public function handle(Request $request, FormService $formService): JsonResponse
     {
         try {
-            $this->userForm->update(['status' => 'processing']);
+            $accessToken = $request->header('Google_Access_Token');
 
-            Log::info("Starting form generation for UserForm ID: {$this->userForm->id}");
+            Log::info('Starting form generation');
 
-            $formService->SetAccessToken($this->userForm['access_token']);
+            $formService->SetAccessToken($accessToken);
 
             Log::info('Generating form outline...');
-            $structuredResponse = $formService->GenerateFormOutline($this->userForm['text_content'], $this->userForm['prompt_instructions']);
+            $structuredResponse = $formService->GenerateFormOutline($request->get('text_content'), $request->get('prompt_instructions'));
 
             Log::info('Verifying questions...');
-            $structuredVerificationResponse = $formService->VerifyQuestions($this->userForm['text_content'], $structuredResponse);
+            $structuredVerificationResponse = $formService->VerifyQuestions($request->get('text_content'), $structuredResponse);
 
             Log::info('Creating Google Form...');
             $formId = $formService->CreateForm($structuredResponse['title']);
@@ -116,25 +84,27 @@ final class GenerateForm implements ShouldQueue
             }
 
             Log::info('Generating form description...');
-            $description = $formService->GenerateDescription($this->userForm['text_content'], $questionListText, $this->userForm['prompt_rewrite_instructions']);
+            $description = $formService->GenerateDescription($request->get('text_content'), $questionListText, null);
             $formService->SetFormDescription($formId, $description);
 
             Log::info('Getting form URL...');
             $formUrl = $formService->formsService->forms->get($formId)->responderUri;
 
-            $this->userForm->update([
+            Log::info('Form generation completed successfully');
+
+            RapidGeneratedForm::create([
+                'text_content' => $request->get('text_content'),
+                'prompt_instructions' => $request->get('prompt_instructions'),
                 'form_url' => $formUrl,
-                'status' => 'completed',
+                'external_id' => request()->get('external_id'),
             ]);
 
-            Log::info("Form generation completed successfully for UserForm ID: {$this->userForm->id}");
+            return response()->json(['formUrl' => $formUrl], 200);
 
         } catch (Exception $ex) {
-            Log::error("Form generation failed for UserForm ID: {$this->userForm->id} - Error: ".$ex->getMessage());
+            Log::error('Form generation failed - Error: '.$ex->getMessage());
 
-            $this->userForm->update(['status' => 'failed']);
-
-            $this->fail($ex);
+            return response()->json(['error' => $ex->getMessage()], 500);
         }
     }
 }

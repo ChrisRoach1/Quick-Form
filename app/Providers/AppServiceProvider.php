@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
 
-class AppServiceProvider extends ServiceProvider
+final class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
@@ -24,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
         Cashier::calculateTaxes();
 
         Http::globalOptions([
-            'timeout' => 300
+            'timeout' => 300,
         ]);
     }
 }

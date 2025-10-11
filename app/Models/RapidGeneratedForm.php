@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class RapidGeneratedForm extends Model
+final class RapidGeneratedForm extends Model
 {
     //
 
@@ -12,7 +14,6 @@ class RapidGeneratedForm extends Model
         'text_content',
         'prompt_instructions',
         'form_url',
-        'external_id'
+        'external_id',
     ];
-
 }

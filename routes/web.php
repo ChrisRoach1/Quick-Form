@@ -1,23 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Controllers\FormController;
 use App\Models\PaidStripeSession;
 use App\Models\User;
-use App\Services\GoogleOAuthService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Cashier\Cashier;
-
-use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
-//primary app stuff
+// primary app stuff
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        
+
         return Inertia::render('dashboard');
     })->name('dashboard');
 
@@ -26,11 +26,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('outline', [FormController::class, 'generateOutline'])->name('generateOutline');
 });
 
-
-//stripe stuff
+// stripe stuff
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/checkout-multi', function (Request $request) {
-        $stripePriceId = env("STRIPE_PRICE_ID");
+        $stripePriceId = env('STRIPE_PRICE_ID');
         $quantity = 1;
 
         return auth()->user()->checkout([$stripePriceId => $quantity], [
@@ -39,13 +38,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('checkout');
 
-    Route::get('/checkout-multi/success', function(Request $request){
+    Route::get('/checkout-multi/success', function (Request $request) {
         $sessionId = $request->get('session_id');
         $session = Cashier::stripe()->checkout->sessions->retrieve($sessionId);
-        $existingPaidSession = PaidStripeSession::where(['stripe_session_id'=> $sessionId, 'paid' => true])->first();
-        $incrementAmount = env("TOKEN_INCREMENT_AMOUNT");
+        $existingPaidSession = PaidStripeSession::where(['stripe_session_id' => $sessionId, 'paid' => true])->first();
+        $incrementAmount = env('TOKEN_INCREMENT_AMOUNT');
 
-        if($session->payment_status === 'paid' && $existingPaidSession === null) {
+        if ($session->payment_status === 'paid' && $existingPaidSession === null) {
             PaidStripeSession::create([
                 'user_id' => auth()->user()->id,
                 'stripe_session_id' => $sessionId,
@@ -53,7 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ]);
 
             auth()->user()->increment('tokens', $incrementAmount);
-        }else{
+        } else {
             PaidStripeSession::create([
                 'user_id' => auth()->user()->id,
                 'stripe_session_id' => $sessionId,
@@ -64,13 +63,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect('dashboard');
     })->name('checkout-multi-success');
 
-    Route::get('/checkout-multi/cancel', function(){
+    Route::get('/checkout-multi/cancel', function () {
         return redirect('dashboard');
     })->name('checkout-multi-cancel');
 
 });
 
-//socialite stuff
+// socialite stuff
 Route::get('/auth/redirect', function () {
     return Socialite::driver('google')
         ->scopes(['https://www.googleapis.com/auth/forms.body'])
@@ -92,11 +91,6 @@ Route::get('/google/callback', function () {
 
     return redirect('/dashboard');
 });
-
-
-
-
-
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
