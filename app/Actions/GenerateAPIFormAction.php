@@ -19,7 +19,7 @@ final readonly class GenerateAPIFormAction
     public function handle(Request $request, FormService $formService): JsonResponse
     {
         try {
-            $accessToken = $request->header('Google_Access_Token');
+            $accessToken = $request->header('Google-Access-Token');
 
             Log::info('Starting form generation');
 
