@@ -47,7 +47,7 @@ Additionally, you must provide a valid Google OAuth access token for Form creati
 
 ---
 
-## Endpoint
+## Endpoints
 
 ### Generate Form
 
@@ -102,14 +102,12 @@ curl --request POST \
 
 ```json
 {
-  "status": false,
   "message": "The text content field is required."
 }
 ```
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `status` | boolean | Always `false` for validation errors |
 | `message` | string | Validation error message describing which field failed validation |
 
 **Common validation errors:**
@@ -142,11 +140,75 @@ Returned when the RapidAPI authentication fails.
 
 ---
 
+### Get Forms by External ID
+
+**GET** `/generatedForm`
+
+Retrieves all forms previously generated for a specific external ID.
+
+#### Request Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `external_id` | string (UUID) | **Yes** | The UUID identifier used when generating forms. Returns all forms associated with this external ID. Must be a valid UUID format (e.g., `550e8400-e29b-41d4-a716-446655440000`). |
+
+#### Request Example
+
+```bash
+curl --request GET \
+  --url 'https://YOUR-RAPIDAPI-HOST/api/generatedForm?external_id=550e8400-e29b-41d4-a716-446655440000'
+```
+
+#### Response Format
+
+##### Success Response (200 OK)
+
+```json
+{
+  "forms": [
+    {
+      "form_url": "https://docs.google.com/forms/d/e/1FAIpQLSc.../viewform",
+      "created_at": "2025-10-12T14:30:00.000000Z"
+    },
+    {
+      "form_url": "https://docs.google.com/forms/d/e/1FAIpQLSd.../viewform",
+      "created_at": "2025-10-11T09:15:00.000000Z"
+    }
+  ]
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `forms` | array | Array of form objects associated with the provided external_id |
+| `forms[].form_url` | string | The public URL of the generated Google Form |
+| `forms[].created_at` | string | ISO 8601 timestamp of when the form was created |
+
+**Note**: Returns an empty array if no forms are found for the given external_id.
+
+##### Error Response (400 Bad Request)
+
+```json
+{
+  "message": "The external id field is required."
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `message` | string | Validation error message |
+
+**Common validation errors:**
+- `"The external id field is required."` - Missing or empty `external_id`
+- `"The external id must be a valid UUID."` - `external_id` is not in valid UUID format
+
+---
+
 ## Response Codes
 
 | Status Code | Description |
 |-------------|-------------|
-| `200` | Success - Form created successfully, returns form URL |
+| `200` | Success - Request completed successfully (returns form URL for POST, returns forms array for GET) |
 | `400` | Bad Request - Validation failed (missing required fields or invalid data format) |
 | `401` | Unauthorized - Invalid or missing RapidAPI authentication |
 | `500` | Internal Server Error - Form generation failed (includes error message) |
@@ -180,6 +242,8 @@ Returned when the RapidAPI authentication fails.
 - Use `external_id` to correlate generated forms with your internal systems
 - Store the UUID in your database before making the API call
 - This allows you to track which forms were generated for which requests/users
+- Use the GET endpoint to retrieve all forms associated with a specific `external_id`
+- Consider implementing pagination on your end if you expect many forms per external_id
 
 ### 6. Performance Optimization
 - Process requests asynchronously or in background jobs
@@ -210,9 +274,10 @@ For API-related questions or issues:
 - Check the error message returned in the response
 - For 400 errors, verify all required fields are provided with correct data types
 - For UUID errors, ensure `external_id` follows UUID v4 format
-- Verify your Google access token is valid and has the correct permissions
-- Ensure your text content is substantial and well-formatted
-- Confirm your timeout settings allow for long processing times (120+ seconds)
+- Verify your Google access token is valid and has the correct permissions (POST endpoint only)
+- Ensure your text content is substantial and well-formatted (POST endpoint only)
+- Confirm your timeout settings allow for long processing times (120+ seconds for POST endpoint)
+- For GET requests, ensure the `external_id` matches one used in previous POST requests
 
 ---
 
@@ -223,4 +288,6 @@ For API-related questions or issues:
 - Support for fill-in-the-blank, multiple choice, and yes/no questions
 - AI-powered question generation and verification
 - Automatic form description generation
+- POST endpoint for creating forms from text content
+- GET endpoint for retrieving forms by external ID
 

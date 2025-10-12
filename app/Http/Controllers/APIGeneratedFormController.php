@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\GenerateAPIFormAction;
+use App\Models\RapidGeneratedForm;
 use App\Services\FormService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -24,7 +25,6 @@ final class APIGeneratedFormController extends Controller
         if ($validator->fails()) {
             $errorMessage = $validator->errors()->first();
             $response = [
-                'status' => false,
                 'message' => $errorMessage,
             ];
 
@@ -32,5 +32,28 @@ final class APIGeneratedFormController extends Controller
         }
 
         return $generateFormAction->handle($request, $formService);
+    }
+
+    public function getFormsById(Request $request)
+    {
+        $validator = Validator::make($request->all(),
+            rules: [
+                'external_id' => 'required|uuid',
+            ]
+        );
+
+        if ($validator->fails()) {
+            $errorMessage = $validator->errors()->first();
+            $response = [
+                'message' => $errorMessage,
+            ];
+
+            return response()->json($response, 400);
+        }
+
+        $generatedForms = RapidGeneratedForm::query()->where('external_id', $request->get('external_id'))->get(['form_url', 'created_at']);
+
+        return response()->json(['forms' => $generatedForms], 200);
+
     }
 }
