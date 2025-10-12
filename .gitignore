@@ -23,3 +23,6 @@ yarn-error.log
 /.vscode
 /.zed
 client_secret_*
+**/caddy
+frankenphp
+frankenphp-worker.php
