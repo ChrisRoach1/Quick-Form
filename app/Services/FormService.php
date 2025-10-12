@@ -208,9 +208,13 @@ final class FormService
     public function GenerateDescription(string $textToSummarize, string $rawQuestionList, ?string $toneOverride): string
     {
 
-        $descriptionPrompt = 'I want you to summarize/retell the text that follows - it should be done in a more modern way that the youth can understand. I will also provide a raw output of questions from a quiz, you should
-                                retell the text in such a way that students can easily answer the questions without needing external resources. DO NOT BULLET POINT THE RETELLING. YOU NEED TO MAKE SURE THE SUMMARY INCLUDES RELEVANT
-                                POINTS AS IT RELATES TO THE QUESTIONS BEING ASKED. THE STUDENTS MUST BE ABLE TO REED THE RETELLING AND FIND THE ANSWERS. THIS IS THE MOST IMPORTANT PART OF THE RETELLING DO NOT SCREW THIS UP';
+        $descriptionPrompt = '  I want you to summarize/retell the text that follows - it should be done in a more modern way that the youth can understand. 
+                                I will also provide a raw output of questions from a quiz, you should retell the text in such a way that students can easily answer the questions without needing external resources. 
+                                DO NOT ADD ANY BULLETED LIST OF POINTS TO FOLLOW. 
+                                WRITE ONLY A SUMMARY. 
+                                YOU NEED TO MAKE SURE THE SUMMARY INCLUDES RELEVANT POINTS AS IT RELATES TO THE QUESTIONS BEING ASKED. 
+                                THE STUDENTS MUST BE ABLE TO READ THE RETELLING AND FIND THE ANSWERS. 
+                                THIS IS THE MOST IMPORTANT PART OF THE RETELLING DO NOT SCREW THIS UP.';
 
         $descriptionPrompt = $descriptionPrompt.'TEXT: '.$textToSummarize.$rawQuestionList;
 
@@ -219,7 +223,7 @@ final class FormService
                                                     follow the override only in regards to the retelling - nothing else.  TONE OVERRIDE: '.$toneOverride;
         }
 
-        $descriptionResponse = Prism::text()->using(Provider::OpenAI, 'gpt-4.1')
+        $descriptionResponse = Prism::text()->using(Provider::OpenAI, 'gpt-4.1-mini')
             ->withPrompt($descriptionPrompt)->asText();
 
         return $descriptionResponse->text;
@@ -247,7 +251,6 @@ final class FormService
 
         $verificationResponse = Prism::structured()->using(Provider::OpenAI, 'gpt-4.1-mini')
             ->withSchema($verificationSchema)
-            ->withMaxTokens(25000)
             ->withProviderOptions([
                 'schema' => [
                     'strict' => true,
@@ -300,7 +303,6 @@ final class FormService
 
         $response = Prism::structured()->using(Provider::OpenAI, 'gpt-4.1-mini')
             ->withSchema($schema)
-            ->withMaxTokens(25000)
             ->withProviderOptions([
                 'schema' => [
                     'strict' => true,
