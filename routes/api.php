@@ -8,5 +8,5 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['RapidAPI'])->group(function () {
     Route::post('/generatedForm', [APIGeneratedFormController::class, 'create']);
 
-    Route::get('/generatedForm', [APIGeneratedFormController::class, 'getFormsById']);
+    Route::get('/generatedForm/{id}', [APIGeneratedFormController::class, 'getFormsById']);
 });

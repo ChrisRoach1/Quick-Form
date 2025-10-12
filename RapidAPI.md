@@ -142,21 +142,21 @@ Returned when the RapidAPI authentication fails.
 
 ### Get Forms by External ID
 
-**GET** `/generatedForm`
+**GET** `/generatedForm/{id}`
 
 Retrieves all forms previously generated for a specific external ID.
 
-#### Request Parameters
+#### Path Parameters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `external_id` | string (UUID) | **Yes** | The UUID identifier used when generating forms. Returns all forms associated with this external ID. Must be a valid UUID format (e.g., `550e8400-e29b-41d4-a716-446655440000`). |
+| `id` | string (UUID) | **Yes** | The UUID identifier used when generating forms. Returns all forms associated with this external ID. Must be a valid UUID format (e.g., `550e8400-e29b-41d4-a716-446655440000`). |
 
 #### Request Example
 
 ```bash
 curl --request GET \
-  --url 'https://YOUR-RAPIDAPI-HOST/api/generatedForm?external_id=550e8400-e29b-41d4-a716-446655440000'
+  --url 'https://YOUR-RAPIDAPI-HOST/api/generatedForm/550e8400-e29b-41d4-a716-446655440000'
 ```
 
 #### Response Format
@@ -185,22 +185,6 @@ curl --request GET \
 | `forms[].created_at` | string | ISO 8601 timestamp of when the form was created |
 
 **Note**: Returns an empty array if no forms are found for the given external_id.
-
-##### Error Response (400 Bad Request)
-
-```json
-{
-  "message": "The external id field is required."
-}
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `message` | string | Validation error message |
-
-**Common validation errors:**
-- `"The external id field is required."` - Missing or empty `external_id`
-- `"The external id must be a valid UUID."` - `external_id` is not in valid UUID format
 
 ---
 
@@ -242,7 +226,7 @@ curl --request GET \
 - Use `external_id` to correlate generated forms with your internal systems
 - Store the UUID in your database before making the API call
 - This allows you to track which forms were generated for which requests/users
-- Use the GET endpoint to retrieve all forms associated with a specific `external_id`
+- Use the GET endpoint with the UUID in the path to retrieve all forms associated with a specific `external_id`
 - Consider implementing pagination on your end if you expect many forms per external_id
 
 ### 6. Performance Optimization
@@ -277,7 +261,7 @@ For API-related questions or issues:
 - Verify your Google access token is valid and has the correct permissions (POST endpoint only)
 - Ensure your text content is substantial and well-formatted (POST endpoint only)
 - Confirm your timeout settings allow for long processing times (120+ seconds for POST endpoint)
-- For GET requests, ensure the `external_id` matches one used in previous POST requests
+- For GET requests, ensure the `id` in the URL path matches an `external_id` used in previous POST requests
 
 ---
 
