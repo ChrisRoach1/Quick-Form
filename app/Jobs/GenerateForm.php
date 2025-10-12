@@ -69,60 +69,52 @@ final class GenerateForm implements ShouldQueue
 
             $questionListText = 'RAW QUESTION LIST: ';
 
+            Log::info('Adding fill-in-the-blank questions...');
+            foreach ($structuredResponse['FillInTheBlankQuestions'] as $question) {
+                $questionText = $question[0];
+                $answer = $question[1];
 
-            \Concurrency::defer([
-                function () use ($formService, $structuredResponse, $structuredVerificationResponse, $formId, $questionListText) {
-                    Log::info('Adding fill-in-the-blank questions...');
-                    foreach ($structuredResponse['FillInTheBlankQuestions'] as $question) {
-                        $questionText = $question[0];
-                        $answer = $question[1];
-
-                        foreach ($structuredVerificationResponse['problemQuestions'] as $problemQuestion) {
-                            if ($problemQuestion[0] === $questionText) {
-                                $answer = $problemQuestion[1];
-                            }
-                        }
-
-                        $questionListText .= '; '.$questionText;
-                        $formService->addTextQuestion($formId, $questionText, $answer, true);
-                    }
-                },
-                function () use ($formService, $structuredResponse, $structuredVerificationResponse, $formId, $questionListText) {
-                    Log::info('Adding multiple choice questions...');
-                    foreach ($structuredResponse['MultipleChoiceQuestions'] as $question) {
-                        $questionText = $question[0];
-                        $choices = array_slice($question, 1, 4);
-                        $answer = $question[5];
-
-                        foreach ($structuredVerificationResponse['problemQuestions'] as $problemQuestion) {
-                            if ($problemQuestion[0] === $questionText) {
-                                $answer = $problemQuestion[1];
-                            }
-                        }
-
-                        $questionListText .= '; '.$questionText;
-                        $formService->addMultipleChoiceQuestion($formId, $questionText, $choices, $answer, true);
-                    }
-                },
-                function () use ($formService, $structuredResponse, $structuredVerificationResponse, $formId, $questionListText) {
-                    Log::info('Adding yes/no questions...');
-                    foreach ($structuredResponse['YesNoChoiceQuestions'] as $question) {
-                        $questionText = $question[0];
-                        $choices = array_slice($question, 1, 2);
-                        $answer = $question[3];
-
-                        foreach ($structuredVerificationResponse['problemQuestions'] as $problemQuestion) {
-                            if ($problemQuestion[0] === $questionText) {
-                                $answer = $problemQuestion[1];
-                            }
-                        }
-
-                        $questionListText .= '; '.$questionText;
-                        $formService->addMultipleChoiceQuestion($formId, $questionText, $choices, $answer, true);
+                foreach ($structuredVerificationResponse['problemQuestions'] as $problemQuestion) {
+                    if ($problemQuestion[0] === $questionText) {
+                        $answer = $problemQuestion[1];
                     }
                 }
-            ]);
 
+                $questionListText .= '; '.$questionText;
+                $formService->addTextQuestion($formId, $questionText, $answer, true);
+            }
+
+            Log::info('Adding multiple choice questions...');
+            foreach ($structuredResponse['MultipleChoiceQuestions'] as $question) {
+                $questionText = $question[0];
+                $choices = array_slice($question, 1, 4);
+                $answer = $question[5];
+
+                foreach ($structuredVerificationResponse['problemQuestions'] as $problemQuestion) {
+                    if ($problemQuestion[0] === $questionText) {
+                        $answer = $problemQuestion[1];
+                    }
+                }
+
+                $questionListText .= '; '.$questionText;
+                $formService->addMultipleChoiceQuestion($formId, $questionText, $choices, $answer, true);
+            }
+
+            Log::info('Adding yes/no questions...');
+            foreach ($structuredResponse['YesNoChoiceQuestions'] as $question) {
+                $questionText = $question[0];
+                $choices = array_slice($question, 1, 2);
+                $answer = $question[3];
+
+                foreach ($structuredVerificationResponse['problemQuestions'] as $problemQuestion) {
+                    if ($problemQuestion[0] === $questionText) {
+                        $answer = $problemQuestion[1];
+                    }
+                }
+
+                $questionListText .= '; '.$questionText;
+                $formService->addMultipleChoiceQuestion($formId, $questionText, $choices, $answer, true);
+            }
 
             Log::info('Generating form description...');
             $description = $formService->GenerateDescription($this->userForm['text_content'], $questionListText, $this->userForm['prompt_rewrite_instructions']);
