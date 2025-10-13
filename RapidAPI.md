@@ -17,8 +17,6 @@ The AI Google Form Generator API is an AI-powered service that automatically gen
 
 **Recommendation**: This endpoint is best consumed as a **background task** or **asynchronous job** in your application. Consider implementing:
 - Queue-based processing
-- Webhook callbacks for completion notifications
-- Long-polling or WebSocket connections for status updates
 - Client-side loading states with appropriate timeout handling
 
 ### Google Access Token Requirements
