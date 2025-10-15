@@ -14,6 +14,10 @@ Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
+Route::get('/refund', function () {
+    return Inertia::render('refund');
+})->name('refund');
+
 // primary app stuff
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {

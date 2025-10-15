@@ -237,7 +237,32 @@ export default function Welcome() {
                     </div>
                 </section>
 
-
+                {/* Footer */}
+                <footer className="border-t bg-background/80 backdrop-blur-sm py-8 mt-24">
+                    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div className="text-sm text-muted-foreground">
+                                © {new Date().getFullYear()} Quick Forms. All rights reserved.
+                            </div>
+                            <div className="flex items-center gap-6">
+                                <a
+                                    href="https://app.termly.io/policy-viewer/policy.html?policyUUID=a281e2e6-164a-40b4-b00c-a035b3bd8dc1"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                    Privacy Policy
+                                </a>
+                                <Link
+                                    href={route('refund')}
+                                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                    Refund Policy
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
             </div>
         </>
     );
