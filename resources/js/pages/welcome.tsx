@@ -245,14 +245,12 @@ export default function Welcome() {
                                 © {new Date().getFullYear()} Quick Forms. All rights reserved.
                             </div>
                             <div className="flex items-center gap-6">
-                                <a
-                                    href="https://app.termly.io/policy-viewer/policy.html?policyUUID=a281e2e6-164a-40b4-b00c-a035b3bd8dc1"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                <Link
+                                    href={route('privacy')}
                                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                     Privacy Policy
-                                </a>
+                                </Link>
                                 <Link
                                     href={route('refund')}
                                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"

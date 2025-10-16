@@ -18,6 +18,10 @@ Route::get('/refund', function () {
     return Inertia::render('refund');
 })->name('refund');
 
+Route::get('/privacy', function () {
+    return Inertia::render('privacy');
+})->name('privacy');
+
 // primary app stuff
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
