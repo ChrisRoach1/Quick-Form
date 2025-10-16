@@ -12,7 +12,7 @@ export default function Welcome() {
     };
     return (
         <>
-            <Head title="Google Form Generator - Streamline Test Creation for Teachers">
+            <Head title="Quick Forms - Streamline Test Creation for Teachers">
                 <meta name="description" content="Transform textbook content into Google Form tests instantly. Perfect for teachers who want to create assessments quickly and efficiently." />
             </Head>
 

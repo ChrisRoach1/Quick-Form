@@ -15,7 +15,7 @@ export default function Privacy() {
 
     return (
         <>
-            <Head title="Refund Policy - Quick Forms">
+            <Head title="Privacy Policy - Quick Forms">
                 <meta name="description" content="Refund Policy for Quick Forms" />
             </Head>
 
