@@ -57,7 +57,7 @@ export default function Privacy() {
 
                             <div className="prose prose-slate dark:prose-invert max-w-none">
                                 <p className="text-lg text-muted-foreground mb-8">
-                                    Last updated: 14-Oct-2025
+                                    Last updated: 17-Oct-2025
                                 </p>
 
                                 <div className="bg-background/60 backdrop-blur-sm rounded-lg border p-8 space-y-6">
