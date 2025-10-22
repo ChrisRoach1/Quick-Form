@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\FormController;
 use App\Models\PaidStripeSession;
 use App\Models\User;
@@ -24,10 +25,14 @@ Route::get('/privacy', function () {
 
 // primary app stuff
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
 
+    Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    Route::get('file-upload', [FileUploadController::class, 'index'])->name('file-upload');
+
+    Route::post('upload', [FileUploadController::class, 'store'])->name('file-upload');
 
     Route::get('all-forms', [FormController::class, 'index'])->name('all-forms');
 

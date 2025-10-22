@@ -19,8 +19,11 @@
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.23",
         "laravel/tinker": "^2.10.1",
+        "league/flysystem-aws-s3-v3": "^3.0",
+        "league/flysystem-ftp": "^3.0",
         "nunomaduro/essentials": "^0.1.0",
         "prism-php/prism": "^0.83.0",
+        "smalot/pdfparser": "^2.12",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {

@@ -14,10 +14,15 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
+        title: 'File Uploads',
+        href: '/file-upload',
+        icon: LayoutGrid,
+    },
+    {
         title: 'All Forms',
         href: '/all-forms',
         icon: LayoutGrid,
-    },
+    }
 ];
 
 export function AppSidebar() {
