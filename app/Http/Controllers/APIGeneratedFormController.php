@@ -37,6 +37,7 @@ final class APIGeneratedFormController extends Controller
     public function getFormsById(string $id)
     {
         $generatedForms = RapidGeneratedForm::query()->where('external_id', $id)->get(['form_url', 'created_at']);
+
         return response()->json(['forms' => $generatedForms], 200);
 
     }

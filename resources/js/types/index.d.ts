@@ -48,3 +48,9 @@ export interface UserForm {
     form_url: string;
     created_at: string | Date;
 }
+
+export interface FileUploadData {
+    id: number;
+    file_name: string;
+    created_at: string | Date;
+}
