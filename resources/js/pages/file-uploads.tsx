@@ -71,11 +71,17 @@ export default function FileUploadsPage({uploads} : FileUploadProps) {
                     </Table>
                 </div>
             </div>
+            { selectedFile ?
             <FileGenerateForm
-                isOpen={isModalOpen}
-                onOpenChange={setIsModalOpen}
-                fileName={selectedFile?.file_name}
-            />
+            isOpen={isModalOpen}
+            onOpenChange={setIsModalOpen}
+            fileName={selectedFile?.file_name}
+            fileUploadId={selectedFile.id}
+        />
+        :
+        <></>
+            }
+
         </AppLayout>
         )
 

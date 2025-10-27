@@ -34,6 +34,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('upload', [FileUploadController::class, 'store'])->name('file-upload');
 
+    Route::post('generateFromFile', [FileUploadController::class, 'generateForm'])->name('generate-from-file');
+
     Route::get('all-forms', [FormController::class, 'index'])->name('all-forms');
 
     Route::post('outline', [FormController::class, 'generateOutline'])->name('generateOutline');

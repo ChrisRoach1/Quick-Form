@@ -1,4 +1,4 @@
-import { useForm } from "@inertiajs/react";
+import { router, useForm } from "@inertiajs/react";
 import {
     Dialog,
     DialogContent,
@@ -16,10 +16,12 @@ interface FileGenerateFormProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     fileName?: string;
+    fileUploadId: number;
 }
 
-export default function FileGenerateForm({ isOpen, onOpenChange, fileName }: FileGenerateFormProps) {
-    const { data, setData, processing, errors, reset } = useForm<Required<{ pageStart: number, pageEnd: number, overridePrompt: string | null }>>({
+export default function FileGenerateForm({ isOpen, onOpenChange, fileName, fileUploadId }: FileGenerateFormProps) {
+    const { data, setData, processing, errors, reset, post } = useForm<{ fileUploadId: number, pageStart: number, pageEnd: number, overridePrompt: string | null }>({
+        fileUploadId: fileUploadId,
         pageStart: 0,
         pageEnd: 0,
         overridePrompt: ''
@@ -32,6 +34,12 @@ export default function FileGenerateForm({ isOpen, onOpenChange, fileName }: Fil
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        post('/generateFromFile', {
+            onSuccess: () => {
+                router.flushAll();
+            }
+        })
     };
 
     return (
@@ -50,8 +58,8 @@ export default function FileGenerateForm({ isOpen, onOpenChange, fileName }: Fil
                         <Input
                             id="pageStart"
                             type="number"
-                            placeholder="0"
-                            min={0}
+                            placeholder="1"
+                            min={1}
                             value={data.pageStart}
                             onChange={(e) => setData('pageStart', parseInt(e.target.value) || 0)}
                         />
@@ -65,8 +73,8 @@ export default function FileGenerateForm({ isOpen, onOpenChange, fileName }: Fil
                         <Input
                             id="pageEnd"
                             type="number"
-                            placeholder="0"
-                            min={0}
+                            placeholder="1"
+                            min={1}
                             value={data.pageEnd}
                             onChange={(e) => setData('pageEnd', parseInt(e.target.value) || 0)}
                         />
