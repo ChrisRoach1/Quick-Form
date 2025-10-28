@@ -38,6 +38,7 @@ export default function FileGenerateForm({ isOpen, onOpenChange, fileName, fileU
         post('/generateFromFile', {
             onSuccess: () => {
                 router.flushAll();
+                onOpenChange(false);
             }
         })
     };
