@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 
 export default function Privacy() {
     const { auth } = usePage<SharedData>().props;
+
     useEffect(() => {
         const script = document.createElement("script");
         script.src = "https://app.termly.io/embed-policy.min.js";

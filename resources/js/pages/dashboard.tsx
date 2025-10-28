@@ -1,10 +1,11 @@
 import FormPrompt from '@/components/form-prompt';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { AlertTriangle, CheckCircle, FileText, Info, XCircle } from 'lucide-react';
+import { FileText } from 'lucide-react';
+import { useEffect } from 'react';
+import { toast } from "sonner"
 
 interface DashboardProps {
     flash?: {
@@ -24,42 +25,24 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Dashboard({ flash }: DashboardProps) {
 
+    useEffect(() =>{
+        if(flash?.error){
+            toast.error(flash.error);
+        }
 
-    const getFlashAlert = () => {
-        if (flash?.success) {
-            return (
-                <Alert variant="success">
-                    <CheckCircle className="h-4 w-4" />
-                    <AlertDescription>{flash.success}</AlertDescription>
-                </Alert>
-            );
+        if(flash?.success){
+            toast.success(flash.success);
         }
-        if (flash?.error) {
-            return (
-                <Alert variant="destructive">
-                    <XCircle className="h-4 w-4" />
-                    <AlertDescription>{flash.error}</AlertDescription>
-                </Alert>
-            );
+
+        if(flash?.warning){
+            toast.warning(flash.warning);
         }
-        if (flash?.warning) {
-            return (
-                <Alert variant="warning">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>{flash.warning}</AlertDescription>
-                </Alert>
-            );
+
+        if(flash?.info){
+            toast.info(flash.info);
         }
-        if (flash?.info) {
-            return (
-                <Alert variant="info">
-                    <Info className="h-4 w-4" />
-                    <AlertDescription>{flash.info}</AlertDescription>
-                </Alert>
-            );
-        }
-        return null;
-    };
+
+    }, [flash])
 
 
     return (
@@ -67,8 +50,6 @@ export default function Dashboard({ flash }: DashboardProps) {
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col p-6">
                 <div className="w-full space-y-6">
-                    {/* Flash Messages */}
-                    {getFlashAlert()}
                     <Card className="w-full">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Jobs\GenerateForm;
 use App\Jobs\GenerateFormFromFile;
 use App\Models\FileUpload;
 use App\Models\UserForm;
@@ -23,7 +22,7 @@ final class FileUploadController extends Controller
         ]);
     }
 
-    public function store(Request $request): void
+    public function store(Request $request)
     {
         $path = Storage::disk('s3')->putFile('uploaded-documents', $request->file('file'));
 
@@ -32,6 +31,8 @@ final class FileUploadController extends Controller
             'file_path' => $path,
             'file_name' => $request->file('file')->getClientOriginalName(),
         ]);
+
+        return redirect('/file-upload')->with('success', 'File uploaded successfully!');
     }
 
     public function generateForm(Request $request, FormService $formService)
@@ -52,13 +53,10 @@ final class FileUploadController extends Controller
 
             GenerateFormFromFile::dispatch($pendingUserForm, $fileUpload, $request->get('pageStart'), $request->get('pageEnd'), $request->get('overridePrompt'));
 
-            return redirect('/dashboard')->with('success', 'Your form is generating please check the forms page to see the status!');
+            return redirect('/file-upload')->with('success', 'Your form is generating please check the forms page to see the status!');
 
         }else{
-            return Inertia::render('file-uploads',
-                [
-                    'uploads' => auth()->user()->uploads()->orderByDesc('created_at')->get()
-                ]);
+            return redirect('/file-upload')->with('error', 'Something went wrong, please try again later.');
         }
 
 

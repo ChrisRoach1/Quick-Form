@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import FileUpload from "@/components/file-upload";
 import FileGenerateForm from "@/components/file-generate-form";
 import AppLayout from "@/layouts/app-layout";
-import { BreadcrumbItem } from "@/types";
-import { Head } from "@inertiajs/react";
+import { BreadcrumbItem, SharedData } from "@/types";
+import { Head, usePage } from "@inertiajs/react";
 import { FileUploadData } from '@/types';
 import { Button } from "@/components/ui/button";
 import {
@@ -14,9 +14,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { toast } from 'sonner';
 
 interface FileUploadProps {
     uploads: FileUploadData[];
+    flash?: {
+        success?: string;
+        error?: string;
+        warning?: string;
+        info?: string;
+    };
 }
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -25,9 +32,29 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function FileUploadsPage({uploads} : FileUploadProps) {
+export default function FileUploadsPage({uploads, flash} : FileUploadProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<FileUploadData | null>(null);
+    const { auth } = usePage<SharedData>().props;
+
+    useEffect(() =>{
+        if(flash?.error){
+            toast.error(flash.error);
+        }
+
+        if(flash?.success){
+            toast.success(flash.success);
+        }
+
+        if(flash?.warning){
+            toast.warning(flash.warning);
+        }
+
+        if(flash?.info){
+            toast.info(flash.info);
+        }
+
+    }, [flash])
 
     const handleGenerateClick = (upload: FileUploadData) => {
         setSelectedFile(upload);
@@ -61,6 +88,7 @@ export default function FileUploadsPage({uploads} : FileUploadProps) {
                                             variant="outline"
                                             size="sm"
                                             onClick={() => handleGenerateClick(upload)}
+                                            disabled={auth.tokens <= 0}
                                         >
                                             Generate
                                         </Button>

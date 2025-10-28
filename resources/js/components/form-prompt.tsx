@@ -2,8 +2,9 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { SharedData } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {  router } from '@inertiajs/react';
+import {  router, usePage } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -16,6 +17,7 @@ const formSchema = z.object({
 });
 
 export default function FormPrompt() {
+    const { auth } = usePage<SharedData>().props;
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -29,10 +31,9 @@ export default function FormPrompt() {
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         router.post(route('generateOutline'), values);
-
         form.reset();
-
         router.flushAll();
+
     }
 
     return (
@@ -85,7 +86,7 @@ export default function FormPrompt() {
                     </FormItem>
                 )}
             />
-            <Button type="submit" className="h-11 w-full text-base font-medium" disabled={!form.formState.isValid}>Generate Google Form (1 token)</Button>
+            <Button type="submit" className="h-11 w-full text-base font-medium" disabled={!form.formState.isValid || auth.tokens <= 0}>Generate Google Form (1 token)</Button>
         </form>
     </Form>
     );
