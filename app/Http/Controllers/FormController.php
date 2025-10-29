@@ -15,14 +15,20 @@ final class FormController extends Controller
     public function index()
     {
         return Inertia::render('all-forms', [
-            'generatedForms' => auth()->user()->userForm()->orderByDesc('created_at')->get(['status', 'form_url', 'created_at']),
+            'generatedForms' => auth()->user()->userForm()->orderByDesc('created_at')->get(['title', 'status', 'form_url', 'created_at']),
         ]);
     }
 
     public function generateOutline(Request $request, FormService $formService)
     {
+        $request->validate([
+            'title' => 'required|string|min:2',
+            'textContent' => 'required|string|min:2',
+        ]);
+
         $pendingUserForm = UserForm::create([
             'user_id' => auth()->user()->id,
+            'title' => $request->get('title'),
             'text_content' => $request->get('textContent'),
             'prompt_instructions' => $request->get('instructions'),
             'prompt_rewrite_instructions' => $request->get('tone'),

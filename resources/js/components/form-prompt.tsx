@@ -9,6 +9,9 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z.object({
+    title: z.string().min(2, {
+        message: 'title is required',
+    }),
     textContent: z.string().min(2, {
         message: 'provide some content!',
     }),
@@ -22,6 +25,7 @@ export default function FormPrompt() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            title: '',
             textContent: '',
             tone: '',
             instructions: '',
@@ -39,6 +43,21 @@ export default function FormPrompt() {
     return (
         <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Title</FormLabel>
+                        <FormControl>
+                            <Input
+                             placeholder="Enter a title for your form"
+                             {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
             <FormField
                 control={form.control}
                 name="textContent"

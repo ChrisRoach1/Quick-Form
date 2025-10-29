@@ -11,6 +11,7 @@ final class UserForm extends Model
 {
     protected $fillable = [
         'user_id',
+        'title',
         'text_content',
         'prompt_instructions',
         'prompt_rewrite_instructions',

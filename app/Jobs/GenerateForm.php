@@ -65,7 +65,8 @@ final class GenerateForm implements ShouldQueue
             $structuredVerificationResponse = $formService->VerifyQuestions($this->userForm['text_content'], $structuredResponse);
 
             Log::info('Creating Google Form...');
-            $formId = $formService->CreateForm($structuredResponse['title']);
+            $formTitle = $this->userForm['title'] ?? $structuredResponse['title'];
+            $formId = $formService->CreateForm($formTitle);
 
             $questionListText = 'RAW QUESTION LIST: ';
 

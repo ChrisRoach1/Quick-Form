@@ -101,6 +101,9 @@ export default function AllForms({ generatedForms }: DashboardProps) {
                                                             {meta.label}
                                                         </Badge>
                                                     </div>
+                                                    <div className="text-base font-medium">
+                                                        {form.title}
+                                                    </div>
                                                     <CardDescription>
                                                         Created {formatDateTime(form.created_at)}
                                                     </CardDescription>

@@ -20,7 +20,8 @@ interface FileGenerateFormProps {
 }
 
 export default function FileGenerateForm({ isOpen, onOpenChange, fileName, fileUploadId }: FileGenerateFormProps) {
-    const { data, setData, processing, errors, reset, post } = useForm<{ fileUploadId: number, pageStart: number, pageEnd: number, overridePrompt: string | null }>({
+    const { data, setData, processing, errors, reset, post } = useForm<{ title: string, fileUploadId: number, pageStart: number, pageEnd: number, overridePrompt: string | null }>({
+        title: '',
         fileUploadId: fileUploadId,
         pageStart: 0,
         pageEnd: 0,
@@ -54,6 +55,18 @@ export default function FileGenerateForm({ isOpen, onOpenChange, fileName, fileU
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-6 py-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="title">Title</Label>
+                        <Input
+                            id="title"
+                            placeholder="Enter a title for your form"
+                            value={data.title}
+                            onChange={(e) => setData('title', e.target.value)}
+                        />
+                        {errors.title && (
+                            <p className="text-sm text-red-500">{errors.title}</p>
+                        )}
+                    </div>
                     <div className="space-y-2">
                         <Label htmlFor="pageStart">Page Start</Label>
                         <Input

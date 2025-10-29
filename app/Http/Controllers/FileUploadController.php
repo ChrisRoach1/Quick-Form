@@ -37,12 +37,18 @@ final class FileUploadController extends Controller
 
     public function generateForm(Request $request, FormService $formService)
     {
+        $request->validate([
+            'title' => 'required|string|min:2',
+            'fileUploadId' => 'required|integer',
+        ]);
+
         $fileUpload = FileUpload::query()->where(['user_id' => auth()->user()->id, 'id' => $request->get('fileUploadId')])->first();
 
         if($fileUpload) {
 
             $pendingUserForm = UserForm::create([
                 'user_id' => auth()->user()->id,
+                'title' => $request->get('title'),
                 'text_content' => "",
                 'prompt_instructions' => "",
                 'status' => 'pending',

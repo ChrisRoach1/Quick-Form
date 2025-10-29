@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\FileUpload;
 use App\Models\UserForm;
 use App\Services\FormService;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -79,7 +80,8 @@ class GenerateFormFromFile implements ShouldQueue
             $structuredVerificationResponse = $formService->VerifyQuestions($this->userForm['text_content'], $structuredResponse);
 
             Log::info('Creating Google Form...');
-            $formId = $formService->CreateForm($structuredResponse['title']);
+            $formTitle = $this->userForm['title'] ?? $structuredResponse['title'];
+            $formId = $formService->CreateForm($formTitle);
 
             $questionListText = 'RAW QUESTION LIST: ';
 

@@ -45,6 +45,7 @@ export interface User {
 }
 
 export interface UserForm {
+    title: string;
     status: 'pending' | 'processing' | 'completed' | 'failed' | string;
     form_url: string;
     created_at: string | Date;
