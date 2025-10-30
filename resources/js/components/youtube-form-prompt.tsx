@@ -12,21 +12,21 @@ const formSchema = z.object({
     title: z.string().min(2, {
         message: 'title is required',
     }),
-    textContent: z.string().min(2, {
-        message: 'provide some content!',
+    youtubeUrl: z.string().min(2, {
+        message: 'provide a youtube url!',
     }),
     tone: z.string(),
     instructions: z.string(),
 });
 
-export default function FormPrompt() {
+export default function YoutubeFormPrompt() {
     const { auth } = usePage<SharedData>().props;
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: '',
-            textContent: '',
+            youtubeUrl: '',
             tone: '',
             instructions: '',
         },
@@ -34,7 +34,7 @@ export default function FormPrompt() {
 
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        router.post(route('generateForm'), values);
+        router.post(route('generateYoutubeForm'), values);
         form.reset();
         router.flushAll();
 
@@ -60,15 +60,14 @@ export default function FormPrompt() {
             />
             <FormField
                 control={form.control}
-                name="textContent"
+                name="youtubeUrl"
                 render={({ field }) => (
                     <FormItem>
                         <FormLabel>Text Content</FormLabel>
                         <FormControl>
-                            <Textarea
-                             placeholder="Paste your textbook content here. This can be chapters, sections, or any educational material you want to create test questions from..."
-                             className="h-[300px] resize-none overflow-y-auto"
-                            {...field} />
+                             <Input
+                             placeholder="Enter a youtube URL"
+                             {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>

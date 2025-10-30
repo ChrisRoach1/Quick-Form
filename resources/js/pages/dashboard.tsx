@@ -1,11 +1,12 @@
 import FormPrompt from '@/components/form-prompt';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import YoutubeFormPrompt from '@/components/youtube-form-prompt';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { FileText } from 'lucide-react';
 import { useEffect } from 'react';
-import { toast } from "sonner"
+import { toast } from 'sonner';
 
 interface DashboardProps {
     flash?: {
@@ -24,26 +25,23 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard({ flash }: DashboardProps) {
-
-    useEffect(() =>{
-        if(flash?.error){
+    useEffect(() => {
+        if (flash?.error) {
             toast.error(flash.error);
         }
 
-        if(flash?.success){
+        if (flash?.success) {
             toast.success(flash.success);
         }
 
-        if(flash?.warning){
+        if (flash?.warning) {
             toast.warning(flash.warning);
         }
 
-        if(flash?.info){
+        if (flash?.info) {
             toast.info(flash.info);
         }
-
-    }, [flash])
-
+    }, [flash]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -51,19 +49,33 @@ export default function Dashboard({ flash }: DashboardProps) {
             <div className="flex h-full flex-1 flex-col p-6">
                 <div className="w-full space-y-6">
                     <Card className="w-full">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <FileText className="h-5 w-5" />
-                                    Text Content & Generate
-                                </CardTitle>
-                                <CardDescription>
-                                    Paste your textbook content and provide any specific instructions for question generation
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <FormPrompt />
-                            </CardContent>
-                        </Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <FileText className="h-5 w-5" />
+                                Text Content & Generate
+                            </CardTitle>
+                            <CardDescription>
+                                Paste your textbook content and provide any specific instructions for question generation
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <FormPrompt />
+                        </CardContent>
+                    </Card>
+                    <Card className="w-full">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <FileText className="h-5 w-5" />
+                                Text Content & Generate
+                            </CardTitle>
+                            <CardDescription>
+                                Paste your textbook content and provide any specific instructions for question generation
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <YoutubeFormPrompt />
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </AppLayout>

@@ -38,7 +38,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('all-forms', [FormController::class, 'index'])->name('all-forms');
 
-    Route::post('outline', [FormController::class, 'generateOutline'])->name('generateOutline');
+    Route::post('generateForm', [FormController::class, 'generateForm'])->name('generateForm');
+    Route::post('generateYoutubeForm', [FormController::class, 'generateYoutubeForm'])->name('generateYoutubeForm');
 });
 
 // stripe stuff
