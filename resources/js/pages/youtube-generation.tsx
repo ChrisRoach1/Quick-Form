@@ -1,13 +1,14 @@
-import FormPrompt from '@/components/form-prompt';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import YoutubeFormPrompt from '@/components/youtube-form-prompt';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { FileText } from 'lucide-react';
+import { PlayCircle, TriangleAlert } from 'lucide-react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 
-interface DashboardProps {
+interface YoutubeGenerationProps {
     flash?: {
         success?: string;
         error?: string;
@@ -18,12 +19,12 @@ interface DashboardProps {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Content Generation',
-        href: '/dashboard',
+        title: 'Youtube Generation',
+        href: '/youtube-generation',
     },
 ];
 
-export default function Dashboard({ flash }: DashboardProps) {
+export default function YoutubeGeneration({ flash }: YoutubeGenerationProps) {
     useEffect(() => {
         if (flash?.error) {
             toast.error(flash.error);
@@ -44,21 +45,28 @@ export default function Dashboard({ flash }: DashboardProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Content Generation" />
+            <Head title="Youtube Generation" />
             <div className="flex h-full flex-1 flex-col p-6">
                 <div className="w-full space-y-6">
+                    <Alert variant="warning">
+                        <TriangleAlert />
+                        <AlertTitle>Video Length Limit</AlertTitle>
+                        <AlertDescription>
+                            Videos cannot be longer than 3 and a half minutes long. Please ensure your YouTube video is within this time limit.
+                        </AlertDescription>
+                    </Alert>
                     <Card className="w-full">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <FileText className="h-5 w-5" />
-                                Content Generation
+                                <PlayCircle className="h-5 w-5" />
+                                YouTube Generation
                             </CardTitle>
                             <CardDescription>
-                                Paste your textbook content and provide any specific instructions for question generation
+                                Provide a YouTube URL and generate questions from the video content
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <FormPrompt />
+                            <YoutubeFormPrompt />
                         </CardContent>
                     </Card>
                 </div>
@@ -66,3 +74,4 @@ export default function Dashboard({ flash }: DashboardProps) {
         </AppLayout>
     );
 }
+

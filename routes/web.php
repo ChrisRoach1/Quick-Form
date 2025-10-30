@@ -26,9 +26,7 @@ Route::get('/privacy', function () {
 // primary app stuff
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [FormController::class, 'dashboardIndex'])->name('dashboard');
 
     Route::get('file-upload', [FileUploadController::class, 'index'])->name('file-upload');
 
@@ -39,7 +37,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('all-forms', [FormController::class, 'index'])->name('all-forms');
 
     Route::post('generateForm', [FormController::class, 'generateForm'])->name('generateForm');
+
     Route::post('generateYoutubeForm', [FormController::class, 'generateYoutubeForm'])->name('generateYoutubeForm');
+
+    Route::get('youtube-generation', [FormController::class, 'youtubeGenerationIndex'])->name('youtube-generation');
 });
 
 // stripe stuff

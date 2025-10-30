@@ -10,6 +10,7 @@ use App\Models\UserForm;
 use App\Services\FormService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Prism\Prism\Enums\Provider;
 use Prism\Prism\Prism;
@@ -23,6 +24,16 @@ final class FormController extends Controller
         return Inertia::render('all-forms', [
             'generatedForms' => auth()->user()->userForm()->orderByDesc('created_at')->get(['title', 'status', 'form_url', 'created_at']),
         ]);
+    }
+
+    public function youtubeGenerationIndex()
+    {
+        return Inertia::render('youtube-generation');
+    }
+
+    public function dashboardIndex()
+    {
+        return Inertia::render('dashboard');
     }
 
     public function generateForm(Request $request, FormService $formService)

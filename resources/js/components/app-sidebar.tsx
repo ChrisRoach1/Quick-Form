@@ -4,14 +4,19 @@ import { TokenDisplay } from '@/components/token-display';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { LayoutGrid, File, BookText } from 'lucide-react';
+import { LayoutGrid, File, BookText, PlayCircle } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Content Generation',
         href: '/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Youtube Generation',
+        href: '/youtube-generation',
+        icon: PlayCircle,
     },
     {
         title: 'File Uploads',
