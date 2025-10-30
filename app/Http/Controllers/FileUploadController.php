@@ -17,9 +17,9 @@ final class FileUploadController extends Controller
     public function index()
     {
         return Inertia::render('file-uploads',
-        [
-            'uploads' => auth()->user()->uploads()->orderByDesc('created_at')->get()
-        ]);
+            [
+                'uploads' => auth()->user()->uploads()->orderByDesc('created_at')->get(),
+            ]);
     }
 
     public function store(Request $request)
@@ -44,16 +44,16 @@ final class FileUploadController extends Controller
 
         $fileUpload = FileUpload::query()->where(['user_id' => auth()->user()->id, 'id' => $request->get('fileUploadId')])->first();
 
-        if($fileUpload) {
+        if ($fileUpload) {
 
             $pendingUserForm = UserForm::create([
                 'user_id' => auth()->user()->id,
                 'title' => $request->get('title'),
-                'text_content' => "",
-                'prompt_instructions' => "",
+                'text_content' => '',
+                'prompt_instructions' => '',
                 'status' => 'pending',
                 'access_token' => auth()->user()->google_session,
-                ]);
+            ]);
 
             auth()->user()->decrement('tokens', 1);
 
@@ -61,10 +61,9 @@ final class FileUploadController extends Controller
 
             return redirect('/file-upload')->with('success', 'Your form is generating please check the forms page to see the status!');
 
-        }else{
-            return redirect('/file-upload')->with('error', 'Something went wrong, please try again later.');
         }
 
+        return redirect('/file-upload')->with('error', 'Something went wrong, please try again later.');
 
     }
 }

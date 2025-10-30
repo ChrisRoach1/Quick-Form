@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\UserForm;
@@ -11,7 +13,7 @@ use Prism\Prism\Enums\Provider;
 use Prism\Prism\Prism;
 use Prism\Prism\ValueObjects\Media\Video;
 
-class GenerateYoutubeForm implements ShouldQueue
+final class GenerateYoutubeForm implements ShouldQueue
 {
     use Queueable;
 

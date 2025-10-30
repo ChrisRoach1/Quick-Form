@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\FileUpload;
@@ -11,7 +13,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class GenerateFormFromFile implements ShouldQueue
+final class GenerateFormFromFile implements ShouldQueue
 {
     use Queueable;
 
@@ -32,7 +34,7 @@ class GenerateFormFromFile implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public UserForm $userForm, public FileUpload $fileUpload, public int $pageStart, public int $pageEnd, public string | null $override)
+    public function __construct(public UserForm $userForm, public FileUpload $fileUpload, public int $pageStart, public int $pageEnd, public ?string $override)
     {
         //
     }
@@ -55,16 +57,15 @@ class GenerateFormFromFile implements ShouldQueue
             $parser = new \Smalot\PdfParser\Parser();
             $parsedContent = $parser->parseContent($fileContent);
             $parsedPages = $parsedContent->getPages();
-            $fullTextContent = "";
+            $fullTextContent = '';
 
-            if(sizeof($parsedPages) <= $this->pageEnd){
-                $this->pageEnd = sizeof($parsedPages);
+            if (count($parsedPages) <= $this->pageEnd) {
+                $this->pageEnd = count($parsedPages);
             }
 
-            for ($i = $this->pageStart-1; $i < $this->pageEnd-1; $i++) {
+            for ($i = $this->pageStart - 1; $i < $this->pageEnd - 1; $i++) {
                 $fullTextContent .= $parsedPages[$i]->getText();
             }
-
 
             $this->userForm->update(['status' => 'processing', 'text_content' => $fullTextContent, 'prompt_instructions' => $this->override]);
 
