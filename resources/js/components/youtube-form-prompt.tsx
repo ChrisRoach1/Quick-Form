@@ -104,7 +104,7 @@ export default function YoutubeFormPrompt() {
                     </FormItem>
                 )}
             />
-            <Button type="submit" className="h-11 w-full text-base font-medium" disabled={!form.formState.isValid || auth.tokens <= 0}>Generate Google Form (1 token)</Button>
+            <Button type="submit" className="h-11 w-full text-base font-medium" disabled={!form.formState.isValid || auth.tokens <= 0}>Generate Google Form (2 token)</Button>
         </form>
     </Form>
     );

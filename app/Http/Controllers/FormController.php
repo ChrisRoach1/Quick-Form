@@ -72,7 +72,7 @@ final class FormController extends Controller
             'access_token' => auth()->user()->google_session,
         ]);
 
-        auth()->user()->decrement('tokens', 1);
+        auth()->user()->decrement('tokens', 2);
 
         GenerateYoutubeForm::dispatch($pendingUserForm, $request->get('youtubeUrl'));
 
