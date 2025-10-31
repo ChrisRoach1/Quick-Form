@@ -55,7 +55,7 @@ final class GenerateYoutubeForm implements ShouldQueue
         try {
 
             $response = Prism::text()
-                ->using(Provider::Gemini, 'gemini-2.5-pro')
+                ->using(Provider::Gemini, 'gemini-2.5-flash')
                 ->withMaxTokens(2173197)
                 ->withPrompt(
                     'transcribe the content of this video in such a way that it could be used later as the summary for a quiz in a classroom. For more context, 
