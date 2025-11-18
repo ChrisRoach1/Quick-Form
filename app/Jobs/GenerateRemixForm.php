@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
-use App\Models\FileUpload;
 use App\Models\UserForm;
 use App\Services\FormService;
 use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
-final class GenerateFormFromFile implements ShouldQueue
+final class GenerateRemixForm implements ShouldQueue
 {
     use Queueable;
 
@@ -34,7 +32,7 @@ final class GenerateFormFromFile implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public UserForm $userForm, public FileUpload $fileUpload, public int $pageStart, public int $pageEnd, public ?string $override)
+    public function __construct(public UserForm $userForm)
     {
         //
     }
@@ -53,21 +51,7 @@ final class GenerateFormFromFile implements ShouldQueue
     public function handle(FormService $formService): void
     {
         try {
-            $fileContent = Storage::disk('s3')->get($this->fileUpload->file_path);
-            $parser = new \Smalot\PdfParser\Parser();
-            $parsedContent = $parser->parseContent($fileContent);
-            $parsedPages = $parsedContent->getPages();
-            $fullTextContent = '';
-
-            if (count($parsedPages) <= $this->pageEnd) {
-                $this->pageEnd = count($parsedPages);
-            }
-
-            for ($i = $this->pageStart - 1; $i < $this->pageEnd - 1; $i++) {
-                $fullTextContent .= $parsedPages[$i]->getText();
-            }
-
-            $this->userForm->update(['status' => 'processing', 'text_content' => $fullTextContent, 'prompt_instructions' => $this->override]);
+            $this->userForm->update(['status' => 'processing']);
 
             Log::info("Starting form generation for UserForm ID: {$this->userForm->id}");
 
@@ -75,7 +59,7 @@ final class GenerateFormFromFile implements ShouldQueue
 
             Log::info('Generating form outline...');
 
-            $structuredResponse = $formService->GenerateFormOutline($this->userForm['text_content'], $this->userForm['prompt_instructions']);
+            $structuredResponse = $this->userForm['raw_output'];
 
             Log::info('Verifying questions...');
             $structuredVerificationResponse = $formService->VerifyQuestions($this->userForm['text_content'], $structuredResponse);
@@ -134,7 +118,8 @@ final class GenerateFormFromFile implements ShouldQueue
             }
 
             Log::info('Generating form description...');
-            $description = $formService->GenerateDescription($this->userForm['text_content'], $questionListText, $this->userForm['prompt_rewrite_instructions']);
+            $description = $structuredResponse['description'];
+
             $formService->SetFormDescription($formId, $description);
 
             Log::info('Getting form URL...');
@@ -144,8 +129,7 @@ final class GenerateFormFromFile implements ShouldQueue
 
             $this->userForm->update([
                 'form_url' => $formUrl,
-                'status' => 'completed',
-                'raw_output' => $structuredResponse
+                'status' => 'completed'
             ]);
 
             Log::info("Form generation completed successfully for UserForm ID: {$this->userForm->id}");

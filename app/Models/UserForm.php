@@ -18,10 +18,12 @@ final class UserForm extends Model
         'status',
         'form_url',
         'access_token',
+        'raw_output'
     ];
 
     protected $casts = [
         'access_token' => 'encrypted',
+        'raw_output' => 'array',
     ];
 
     public function user(): BelongsTo

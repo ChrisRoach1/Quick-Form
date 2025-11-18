@@ -38,6 +38,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('generateForm', [FormController::class, 'generateForm'])->name('generateForm');
 
+    Route::post('generateRemixForm', [FormController::class, 'generateRemixForm'])->name('generateRemixForm');
+
     Route::post('generateYoutubeForm', [FormController::class, 'generateYoutubeForm'])->name('generateYoutubeForm');
 
     Route::get('youtube-generation', [FormController::class, 'youtubeGenerationIndex'])->name('youtube-generation');

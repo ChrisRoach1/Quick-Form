@@ -138,9 +138,12 @@ final class GenerateYoutubeForm implements ShouldQueue
             Log::info('Getting form URL...');
             $formUrl = $formService->formsService->forms->get($formId)->responderUri;
 
+            $structuredResponse["description"] = $description;
+
             $this->userForm->update([
                 'form_url' => $formUrl,
                 'status' => 'completed',
+                'raw_output' => $structuredResponse
             ]);
 
             Log::info("Form generation completed successfully for UserForm ID: {$this->userForm->id}");

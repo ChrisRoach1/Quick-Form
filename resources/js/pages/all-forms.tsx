@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { UserForm, type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { FileText, Loader2, CheckCircle, XCircle, Clock, ExternalLink } from 'lucide-react';
+import { FileText, Loader2, CheckCircle, XCircle, Clock, ExternalLink, RefreshCw } from 'lucide-react';
+import RemixFormModal from '@/components/remix-form-modal';
 
 interface DashboardProps {
     generatedForms: UserForm[];
@@ -19,6 +21,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 
 export default function AllForms({ generatedForms }: DashboardProps) {
+    const [remixForm, setRemixForm] = useState<UserForm | null>(null);
+    const [isRemixModalOpen, setIsRemixModalOpen] = useState(false);
+
+    const handleRemixClick = (form: UserForm) => {
+        setRemixForm(form);
+        setIsRemixModalOpen(true);
+    };
 
     const getStatusMeta = (status: string) => {
         switch (status) {
@@ -108,20 +117,33 @@ export default function AllForms({ generatedForms }: DashboardProps) {
                                                         Created {formatDateTime(form.created_at)}
                                                     </CardDescription>
                                                 </CardHeader>
-                                                <CardContent className="flex items-center justify-between">
-                                                    {form.status === 'completed' && form.form_url ? (
-                                                        <Button asChild size="sm" className="gap-1" variant={'link'}>
-                                                            <a href={form.form_url} target="_blank" rel="noreferrer">
-                                                                <ExternalLink className="h-4 w-4" />
-                                                                Open Form
+                                                <CardContent className="flex items-center justify-between gap-2">
+                                                    <div className="flex items-center gap-2">
+                                                        {form.status === 'completed' && form.form_url ? (
+                                                            <Button asChild size="sm" className="gap-1" variant={'link'}>
+                                                                <a href={form.form_url} target="_blank" rel="noreferrer">
+                                                                    <ExternalLink className="h-4 w-4" />
+                                                                    Open Form
                                                                 </a>
-                                                        </Button>
-                                                    ) : (
-                                                        <Button size="sm" variant={meta.variant} disabled className="gap-1">
-                                                            {isInProgress ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
-                                                            {meta.actionLabel}
-                                                        </Button>
-                                                    )}
+                                                            </Button>
+                                                        ) : (
+                                                            <Button size="sm" variant={meta.variant} disabled className="gap-1">
+                                                                {isInProgress ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+                                                                {meta.actionLabel}
+                                                            </Button>
+                                                        )}
+                                                        {form.raw_output && (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                className="gap-1"
+                                                                onClick={() => handleRemixClick(form)}
+                                                            >
+                                                                <RefreshCw className="h-4 w-4" />
+                                                                Remix
+                                                            </Button>
+                                                        )}
+                                                    </div>
                                                 </CardContent>
                                             </Card>
                                         );
@@ -132,6 +154,11 @@ export default function AllForms({ generatedForms }: DashboardProps) {
                     </Card>
                 </div>
             </div>
+            <RemixFormModal
+                isOpen={isRemixModalOpen}
+                onOpenChange={setIsRemixModalOpen}
+                form={remixForm}
+            />
         </AppLayout>
     );
 }
