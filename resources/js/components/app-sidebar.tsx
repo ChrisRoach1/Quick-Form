@@ -19,7 +19,7 @@ const mainNavItems: NavItem[] = [
         icon: PlayCircle,
     },
     {
-        title: 'File Uploads',
+        title: 'File Generation',
         href: '/file-upload',
         icon: BookText,
     },
