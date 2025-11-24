@@ -1,4 +1,3 @@
-import { router, useForm } from "@inertiajs/react";
 import {
     Dialog,
     DialogContent,
@@ -9,8 +8,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { Textarea } from "./ui/textarea";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from 'react-hook-form';
+import { router } from '@inertiajs/react';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
 
 interface FileGenerateFormProps {
     isOpen: boolean;
@@ -19,29 +22,39 @@ interface FileGenerateFormProps {
     fileUploadId: number;
 }
 
+
+
 export default function FileGenerateForm({ isOpen, onOpenChange, fileName, fileUploadId }: FileGenerateFormProps) {
-    const { data, setData, processing, errors, reset, post } = useForm<{ title: string, fileUploadId: number, pageStart: number, pageEnd: number, overridePrompt: string | null }>({
-        title: '',
-        fileUploadId: fileUploadId,
-        pageStart: 0,
-        pageEnd: 0,
-        overridePrompt: ''
+    const formSchema = z.object({
+        title: z.string().min(2, {
+            message: 'title is required',
+        }),
+        fileUploadId: z.number().default(fileUploadId).nonoptional(),
+        pageStart: z.coerce.number<number>().min(1),
+        pageEnd: z.coerce.number<number>().min(1),
+        overridePrompt: z.string()
+    });
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            title: '',
+            pageStart: 1,
+            pageEnd: 1,
+            overridePrompt: '',
+        },
     });
 
     const handleClose = () => {
-        reset();
+        form.reset();
         onOpenChange(false);
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        post('/generateFromFile', {
-            onSuccess: () => {
-                router.flushAll();
-                onOpenChange(false);
-            }
-        })
+    const handleSubmit = (values: z.infer<typeof formSchema>) => {
+        router.post(route('generate-from-file'), values);
+        form.reset();
+        router.flushAll();
+        handleClose();
     };
 
     return (
@@ -54,79 +67,82 @@ export default function FileGenerateForm({ isOpen, onOpenChange, fileName, fileU
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-6 py-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="title">Title</Label>
-                        <Input
-                            id="title"
-                            placeholder="Enter a title for your form"
-                            value={data.title}
-                            onChange={(e) => setData('title', e.target.value)}
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+                        <FormField
+                            control={form.control}
+                            name="title"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Title</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                        placeholder="Enter a title for your form" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                        {errors.title && (
-                            <p className="text-sm text-red-500">{errors.title}</p>
-                        )}
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="pageStart">Page Start</Label>
-                        <Input
-                            id="pageStart"
-                            type="number"
-                            placeholder="1"
-                            min={1}
-                            value={data.pageStart}
-                            onChange={(e) => setData('pageStart', parseInt(e.target.value) || 0)}
+                        <FormField
+                            control={form.control}
+                            name="pageStart"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Page Start</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type='number'
+                                            placeholder="1"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                        {errors.pageStart && (
-                            <p className="text-sm text-red-500">{errors.pageStart}</p>
-                        )}
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="pageEnd">Page End</Label>
-                        <Input
-                            id="pageEnd"
-                            type="number"
-                            placeholder="1"
-                            min={1}
-                            value={data.pageEnd}
-                            onChange={(e) => setData('pageEnd', parseInt(e.target.value) || 0)}
+                        <FormField
+                            control={form.control}
+                            name="pageEnd"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Page End</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                        type='number'
+                                            placeholder="1"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                        {errors.pageEnd && (
-                            <p className="text-sm text-red-500">{errors.pageEnd}</p>
-                        )}
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="overridePrompt">Override Instructions</Label>
-                        <Textarea
-                            id="overridePrompt"
-                            placeholder="Enter custom prompt (optional)"
-                            value={data.overridePrompt || ''}
-                            onChange={(e) => setData('overridePrompt', e.target.value || null)}
+                        <FormField
+                            control={form.control}
+                            name="overridePrompt"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Override Instructions</FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder="No form data available"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                        {errors.overridePrompt && (
-                            <p className="text-sm text-red-500">{errors.overridePrompt}</p>
-                        )}
-                    </div>
-
                     <DialogFooter>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleClose}
-                            disabled={processing}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            type="submit"
-                            disabled={processing}
-                        >
-                            {processing ? 'Generating...' : 'Generate Form'}
-                        </Button>
-                    </DialogFooter>
-                </form>
+                    <Button type="button" variant="outline" onClick={handleClose}>
+                        Cancel
+                    </Button>
+                    <Button type="submit" disabled={!form.formState.isValid}>
+                        Submit
+                    </Button>
+                </DialogFooter>
+                    </form>
+                </Form>
             </DialogContent>
         </Dialog>
     );

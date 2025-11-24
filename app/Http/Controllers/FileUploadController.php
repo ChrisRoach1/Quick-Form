@@ -37,6 +37,7 @@ final class FileUploadController extends Controller
 
     public function generateForm(Request $request, FormService $formService)
     {
+
         $request->validate([
             'title' => 'required|string|min:2',
             'fileUploadId' => 'required|integer',
